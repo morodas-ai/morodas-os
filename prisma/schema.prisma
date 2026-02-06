@@ -1,0 +1,376 @@
+// MORODAS OS - Database Schema
+// NoimosAI-inspired feed system + オジキ専用機能（収益・停滞アラート）
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ===========================================
+// エージェント関連
+// ===========================================
+
+model Agent {
+  id              String       @id @default(cuid())
+  name            String       // "News Agent", "SEO Agent" etc
+  type            String       // news, seo, social, geo, growth, competitor, socialmedia
+  description     String?      // エージェントの説明
+  enabled         Boolean      @default(true)
+  config          String       @default("{}") // JSON設定
+  lastRunAt       DateTime?
+  
+  // NoimosAI互換: 詳細パネル用
+  keyCapabilities String?      // JSON配列 ["レポート生成", "トレンド分析"]
+  recommendedUses String?      // 推奨用途テキスト
+  
+  // リレーション
+  runs            AgentRun[]
+  reports         Report[]     // このエージェントが生成したレポート
+  agentTools      AgentTool[]  // 連携ツール
+  triggers        Trigger[]    // 実行トリガー
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model AgentRun {
+  id        String   @id @default(cuid())
+  agentId   String
+  agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  status    String   // pending, running, completed, failed
+  output    String   @default("{}") // JSON出力
+  error     String?  // エラーメッセージ
+  duration  Int?     // 実行時間（秒）
+  prompt    String?  // 使用されたプロンプト（Detail表示用）
+  createdAt DateTime @default(now())
+}
+
+// ===========================================
+// ツール連携（NoimosAI互換）
+// ===========================================
+
+model Tool {
+  id          String      @id @default(cuid())
+  name        String      // "X (Twitter)", "Google Drive", "Slack"
+  provider    String      @unique // x, google_drive, slack, youtube, facebook, notion, google_search
+  icon        String?     // lucide icon名
+  description String?
+  isGlobal    Boolean     @default(true) // 全エージェントで使用可能か
+  agentTools  AgentTool[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model AgentTool {
+  id          String   @id @default(cuid())
+  agentId     String
+  agent       Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  toolId      String
+  tool        Tool     @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  isConnected Boolean  @default(false) // 連携済みか
+  config      String   @default("{}") // ツール固有設定
+  createdAt   DateTime @default(now())
+  
+  @@unique([agentId, toolId])
+}
+
+// ===========================================
+// トリガー/スケジュール（NoimosAI互換）
+// ===========================================
+
+model Trigger {
+  id          String    @id @default(cuid())
+  agentId     String
+  agent       Agent     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  
+  name        String    @default("Default Schedule")
+  type        String    @default("schedule") // schedule, event, manual
+  
+  // スケジュール設定
+  frequency   String    @default("weekly") // daily, weekly, monthly, custom
+  dayOfWeek   Int?      // 0-6 (日-土)
+  dayOfMonth  Int?      // 1-31
+  hour        Int       @default(9) // 0-23
+  minute      Int       @default(0) // 0-59
+  timezone    String    @default("Asia/Tokyo")
+  
+  enabled     Boolean   @default(true)
+  lastFiredAt DateTime?
+  nextFireAt  DateTime?
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// ===========================================
+// レポート・フィード関連（NoimosAI風）
+// ===========================================
+
+model Report {
+  id          String   @id @default(cuid())
+  agentId     String
+  agent       Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  
+  // 表示情報
+  title       String
+  description String   // カードに表示する概要
+  status      String   @default("review") // review, processing, archived, done
+  
+  // レポート本文（JSON構造）
+  content     String   @default("{}") // { summary, topics, insights, sns, sources }
+  
+  // メタ情報
+  workspace   String   @default("Default Workspace")
+  account     String?  // 対象アカウント（オプション）
+  
+  // タスク連携
+  tasks       Task[]   // このレポートから生成されたタスク
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ===========================================
+// タスク・優先度管理（オジキ専用）
+// ===========================================
+
+model Task {
+  id          String   @id @default(cuid())
+  
+  // タスク情報
+  title       String
+  description String?
+  priority    String   @default("medium") // high, medium, low
+  status      String   @default("pending") // pending, in_progress, done, stagnant
+  
+  // 時間情報
+  estimatedMinutes Int?  // 推定所要時間
+  dueDate     DateTime?
+  completedAt DateTime?
+  
+  // 関連
+  reportId    String?
+  report      Report?  @relation(fields: [reportId], references: [id], onDelete: SetNull)
+  agentType   String?  // どのエージェントが生成したか
+  
+  // 停滞検知
+  lastActivityAt DateTime @default(now()) // 最終更新日時
+  stagnantDays   Int      @default(0)     // 停滞日数（計算フィールド）
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ===========================================
+// 収益トラッキング（オジキ専用）
+// ===========================================
+
+model Revenue {
+  id          String   @id @default(cuid())
+  
+  // 収益情報
+  amount      Int      // 金額（円）
+  source      String   // note, consulting, development, other
+  description String?  // 説明
+  
+  // 日付
+  date        DateTime @default(now()) // 収益発生日
+  
+  // クライアント連携（オプション）
+  clientId    String?
+  client      Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  dealId      String?
+  
+  createdAt   DateTime @default(now())
+}
+
+// 月次収益サマリー（集計用）
+model MonthlyRevenue {
+  id          String   @id @default(cuid())
+  
+  year        Int
+  month       Int
+  
+  // 収益内訳
+  noteRevenue         Int @default(0)
+  consultingRevenue   Int @default(0)
+  developmentRevenue  Int @default(0)
+  otherRevenue        Int @default(0)
+  totalRevenue        Int @default(0)
+  
+  // 目標
+  targetRevenue       Int @default(1000000) // 目標収益（デフォルト100万円）
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([year, month])
+}
+
+// ===========================================
+// メトリクス（KPI追跡）
+// ===========================================
+
+model Metric {
+  id          String   @id @default(cuid())
+  
+  name        String   // x_followers, note_pv, note_likes, etc
+  value       Int
+  date        DateTime @default(now())
+  
+  // 変化量
+  change      Int?     // 前回からの変化
+  changePercent Float? // 変化率
+  
+  // 目標
+  target      Int?
+  
+  createdAt   DateTime @default(now())
+}
+
+// ===========================================
+// 停滞アラート
+// ===========================================
+
+model Alert {
+  id          String   @id @default(cuid())
+  
+  type        String   // stagnation, deadline, revenue, system
+  severity    String   @default("warning") // info, warning, critical
+  
+  title       String
+  message     String
+  
+  // 関連エンティティ
+  relatedType String?  // task, report, agent
+  relatedId   String?
+  
+  // ステータス
+  isRead      Boolean  @default(false)
+  isDismissed Boolean  @default(false)
+  
+  // 自動解消
+  autoResolveAt DateTime? // この時点で自動解消
+  resolvedAt    DateTime?
+  
+  createdAt   DateTime @default(now())
+}
+
+// ===========================================
+// クライアント・案件（CRM）
+// ===========================================
+
+model Client {
+  id          String   @id @default(cuid())
+  name        String
+  company     String
+  email       String?
+  phone       String?
+  
+  // パイプライン
+  stage       String   @default("lead") // lead, contacted, proposal, negotiating, won, completed, lost
+  
+  // 案件情報
+  dealValue   Int?     // 想定金額
+  probability Int?     // 確度（0-100%）
+  
+  nextAction  String?
+  dueDate     DateTime?
+  notes       String?
+  
+  // 関連
+  deals       Deal[]
+  revenues    Revenue[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Deal {
+  id          String   @id @default(cuid())
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  title       String?
+  stage       String
+  value       Int
+  notes       String?
+  
+  closedAt    DateTime?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ===========================================
+// コンテンツ管理
+// ===========================================
+
+model Content {
+  id          String   @id @default(cuid())
+  
+  title       String
+  platform    String   // note, x, youtube, instagram, tiktok
+  type        String   @default("post") // post, thread, article, video
+  status      String   @default("idea") // idea, draft, review, scheduled, published
+  
+  // 本文
+  body        String?
+  
+  // スケジュール
+  scheduledAt DateTime?
+  publishedAt DateTime?
+  
+  // エンゲージメント（JSON）
+  engagement  String   @default("{}") // { views, likes, comments, shares }
+  
+  // メモ
+  notes       String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ===========================================
+// システム設定
+// ===========================================
+
+model Setting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ===========================================
+// チャット履歴（AI対話）
+// ===========================================
+
+model ChatSession {
+  id        String    @id @default(cuid())
+  title     String    @default("New Chat")
+  context   String?   // Obsidian/ANTI GRAVITY連携用
+  isActive  Boolean   @default(true)
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Message {
+  id        String      @id @default(cuid())
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      String      // user, assistant, system
+  content   String
+  metadata  String      @default("{}") // JSON（追加情報）
+  createdAt DateTime    @default(now())
+
+  @@index([sessionId])
+}
+
