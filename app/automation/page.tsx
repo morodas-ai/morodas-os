@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, X, Zap } from "lucide-react";
+import { Plus, X, Zap, Loader2 } from "lucide-react";
 import TemplateGallery from "@/components/agents/TemplateGallery";
 import AgentListTable from "@/components/agents/AgentListTable";
 import AgentFilters from "@/components/agents/AgentFilters";
@@ -60,84 +60,69 @@ export default function AutomationPage() {
     };
 
     return (
-        <div className="min-h-screen bg-foreground text-surface-50 p-6 md:p-8 space-y-10 max-w-[1600px] mx-auto">
-
+        <div style={{ maxWidth: 1400, margin: "0 auto" }}>
             {/* Header & Templates Section */}
-            <section className="space-y-6">
-                <div className="flex items-center justify-between">
+            <div style={{ marginBottom: 32 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
                     <div>
-                        <h1 className="text-3xl font-bold text-surface-50 flex items-center gap-3">
-                            <Zap size={28} className="text-primary-400" />
+                        <h1 className="section-header" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <Zap size={26} style={{ color: "var(--primary)" }} />
                             自動化
                         </h1>
-                        <p className="text-muted mt-2">
-                            テンプレートを選んで「はじめる」だけ。あとはAIが自動で実行します。
-                        </p>
+                        <p className="section-subheader">テンプレートを選んで「はじめる」だけ。あとはAIが自動で実行します。</p>
                     </div>
                 </div>
 
-                {/* Horizontal Scroll Template Gallery */}
                 <TemplateGallery />
-            </section>
+            </div>
 
             {/* Agents List Section */}
-            <section className="space-y-6">
-                <div className="flex items-center justify-between border-b border-sidebar pb-6">
+            <div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid var(--border)", paddingBottom: 16, marginBottom: 20 }}>
                     <div>
-                        <h2 className="text-2xl font-bold text-surface-100">実行中の自動化</h2>
-                        <p className="text-muted mt-1">
-                            自動化タスクの管理と実行状況
-                        </p>
+                        <h2 style={{ fontSize: 20, fontWeight: 700, color: "var(--text)" }}>実行中の自動化</h2>
+                        <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>自動化タスクの管理と実行状況</p>
                     </div>
-                    <button
-                        onClick={() => setShowCreationModal(true)}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-primary-500 hover:bg-primary-400 text-foreground font-bold rounded-lg transition-all shadow-lg hover:shadow-primary-500/20"
-                    >
-                        <Plus size={20} />
-                        <span>新しく作る</span>
+                    <button className="btn btn-primary" style={{ padding: "10px 20px", fontSize: 14 }} onClick={() => setShowCreationModal(true)}>
+                        <Plus size={18} />
+                        新しく作る
                     </button>
                 </div>
 
-                {/* Filters & Table */}
-                <div>
-                    <AgentFilters />
+                <AgentFilters />
 
-                    {loading ? (
-                        <div className="h-64 flex items-center justify-center border border-sidebar rounded-xl bg-foreground/30">
-                            <div className="flex flex-col items-center gap-3 text-surface-500">
-                                <div className="w-8 h-8 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                                読み込み中...
-                            </div>
-                        </div>
-                    ) : (
-                        <AgentListTable
-                            agents={agents}
-                            onToggleStatus={handleToggleStatus}
-                            onDelete={handleDelete}
-                            onSelectAgent={(agent) => setSelectedAgent(agent)}
-                        />
-                    )}
-                </div>
-            </section>
+                {loading ? (
+                    <div className="flex-center" style={{ padding: 80 }}>
+                        <Loader2 size={32} className="animate-spin" style={{ color: "var(--primary)" }} />
+                    </div>
+                ) : (
+                    <AgentListTable
+                        agents={agents}
+                        onToggleStatus={handleToggleStatus}
+                        onDelete={handleDelete}
+                        onSelectAgent={(agent) => setSelectedAgent(agent)}
+                    />
+                )}
+            </div>
 
             {/* Agent Detail Panel (slide-out) */}
             {selectedAgent && (
-                <div className="fixed inset-0 z-[80] flex justify-end">
+                <div style={{ position: "fixed", inset: 0, zIndex: 80, display: "flex", justifyContent: "flex-end" }}>
                     <div
-                        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                        style={{ position: "absolute", inset: 0, background: "rgba(62, 44, 35, 0.4)", backdropFilter: "blur(4px)" }}
                         onClick={() => setSelectedAgent(null)}
                     />
-                    <div className="relative w-full max-w-2xl bg-foreground border-l border-sidebar-hover shadow-2xl overflow-y-auto animate-in slide-in-from-right duration-300">
-                        <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-foreground/95 backdrop-blur border-b border-sidebar">
-                            <h2 className="text-lg font-bold text-white">{selectedAgent.name}</h2>
+                    <div style={{ position: "relative", width: "100%", maxWidth: 640, background: "var(--color-surface-50)", borderLeft: "1px solid var(--border)", overflowY: "auto" }}>
+                        <div style={{ position: "sticky", top: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 24px", background: "var(--color-surface-50)", borderBottom: "1px solid var(--border)" }}>
+                            <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--text)" }}>{selectedAgent.name}</h2>
                             <button
                                 onClick={() => setSelectedAgent(null)}
-                                className="p-2 text-muted hover:text-white hover:bg-sidebar-hover rounded-lg transition-colors"
+                                style={{ background: "none", border: "none", cursor: "pointer", padding: 8, color: "var(--text-muted)" }}
                             >
                                 <X size={18} />
                             </button>
                         </div>
-                        <div className="p-6">
+                        <div style={{ padding: 24 }}>
                             <AgentDetailPanel agentId={selectedAgent.id} />
                         </div>
                     </div>

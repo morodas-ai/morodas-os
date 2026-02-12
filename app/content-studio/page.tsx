@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from "react";
 import {
-    PenTool,
     Plus,
     Clock,
-    CheckCircle,
     Eye,
     Loader2,
     FileText,
@@ -14,8 +12,8 @@ import {
     ArrowRight,
     Globe,
     Rocket,
-    Twitter,
     RotateCcw,
+    X,
 } from "lucide-react";
 
 interface ContentItem {
@@ -32,17 +30,17 @@ interface ContentItem {
     updatedAt: string;
 }
 
-const statusFlow = [
-    { key: "candidate", label: "候補", color: "bg-surface-400/10 text-surface-400", icon: FileText },
-    { key: "generating", label: "生成中…", color: "bg-yellow-500/10 text-yellow-400", icon: Loader2 },
-    { key: "draft", label: "レビュー待ち", color: "bg-primary-500/10 text-primary-400", icon: Eye },
-    { key: "publishing", label: "公開処理中…", color: "bg-yellow-500/10 text-yellow-400", icon: Loader2 },
-    { key: "published", label: "公開済み ✨", color: "bg-green-500/10 text-green-400", icon: Globe },
-    { key: "rejected", label: "不採用", color: "bg-red-500/10 text-red-300", icon: FileText },
-];
+const statusFlow: Record<string, { label: string; badgeClass: string }> = {
+    candidate: { label: "候補", badgeClass: "badge-review" },
+    generating: { label: "生成中…", badgeClass: "badge-processing" },
+    draft: { label: "レビュー待ち", badgeClass: "badge-review" },
+    publishing: { label: "公開中…", badgeClass: "badge-processing" },
+    published: { label: "公開済み ✨", badgeClass: "badge-done" },
+    rejected: { label: "不採用", badgeClass: "badge-alert" },
+};
 
-function getStatusInfo(status: string) {
-    return statusFlow.find((s) => s.key === status) || statusFlow[0];
+function getStatus(status: string) {
+    return statusFlow[status] || statusFlow.candidate;
 }
 
 export default function ContentStudioPage() {
@@ -59,7 +57,6 @@ export default function ContentStudioPage() {
 
     useEffect(() => {
         fetchItems();
-        // 30秒ごとにポーリング（生成中の更新を拾う）
         const interval = setInterval(fetchItems, 30000);
         return () => clearInterval(interval);
     }, []);
@@ -76,7 +73,6 @@ export default function ContentStudioPage() {
         }
     };
 
-    // ① テーマ登録
     const createArticle = async () => {
         if (!newTheme.trim()) return;
         setIsCreating(true);
@@ -91,10 +87,7 @@ export default function ContentStudioPage() {
                 }),
             });
             const { data } = await res.json();
-
-            // 作成したら即n8nに生成トリガー
             await fetch(`/api/content-studio/${data.id}/generate`, { method: "POST" });
-
             setItems([{ ...data, status: "generating" }, ...items]);
             setShowCreateModal(false);
             setNewTheme("");
@@ -107,30 +100,20 @@ export default function ContentStudioPage() {
         }
     };
 
-    // ② AI再生成
     const triggerRegenerate = async (id: string) => {
         setActionLoading(id);
         try {
             await fetch(`/api/content-studio/${id}/generate`, { method: "POST" });
             setItems(items.map((i) => (i.id === id ? { ...i, status: "generating" } : i)));
-        } catch (error) {
-            console.error("Failed to trigger generation:", error);
-        } finally {
-            setActionLoading(null);
-        }
+        } catch { } finally { setActionLoading(null); }
     };
 
-    // ③ WordPress公開 + X投稿
     const triggerPublish = async (id: string) => {
         setActionLoading(id);
         try {
             await fetch(`/api/content-studio/${id}/publish`, { method: "POST" });
             setItems(items.map((i) => (i.id === id ? { ...i, status: "publishing" } : i)));
-        } catch (error) {
-            console.error("Failed to trigger publish:", error);
-        } finally {
-            setActionLoading(null);
-        }
+        } catch { } finally { setActionLoading(null); }
     };
 
     const filteredItems = filter === "all" ? items : items.filter((i) => i.status === filter);
@@ -143,58 +126,52 @@ export default function ContentStudioPage() {
     };
 
     return (
-        <div className="max-w-6xl">
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
             {/* ヘッダー */}
-            <div className="flex items-center justify-between mb-8">
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32 }}>
                 <div>
-                    <h1 className="text-3xl font-bold text-surface-50 flex items-center gap-3">
-                        <PenTool size={28} className="text-primary-400" />
-                        コンテンツスタジオ
+                    <h1 className="section-header" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        ✍️ コンテンツスタジオ
                     </h1>
-                    <p className="text-muted mt-1">テーマを入れるだけ。AIが記事を書いて公開まで。</p>
+                    <p className="section-subheader">テーマを入れるだけ。AIが記事を書いて公開まで。</p>
                 </div>
-                <button
-                    onClick={() => setShowCreateModal(true)}
-                    className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-primary-500 to-primary-400 text-white rounded-xl font-semibold hover:from-primary-400 hover:to-primary-300 transition-all shadow-lg shadow-primary-500/20 hover:shadow-primary-500/40"
-                >
-                    <Plus size={20} />
+                <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
+                    <Plus size={18} />
                     記事を書く
                 </button>
             </div>
 
-            {/* フロー説明 */}
-            <div className="bg-sidebar/50 rounded-xl p-4 mb-6 border border-sidebar-hover">
-                <div className="flex items-center justify-between text-xs text-muted">
-                    <div className="flex items-center gap-2">
-                        <span className="bg-primary-500/20 text-primary-400 px-2 py-0.5 rounded">① テーマ入力</span>
-                        <ArrowRight size={12} />
-                        <span className="bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded">② AI生成</span>
-                        <ArrowRight size={12} />
-                        <span className="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">③ レビュー</span>
-                        <ArrowRight size={12} />
-                        <span className="bg-green-500/20 text-green-400 px-2 py-0.5 rounded">④ 公開+X投稿</span>
-                    </div>
-                    <span className="text-surface-400">MORODAS / OpenClaw / CLI 共通パイプライン</span>
+            {/* フロー表示 */}
+            <div className="card" style={{ padding: "12px 20px", marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+                    <span className="badge-review">① テーマ入力</span>
+                    <ArrowRight size={14} style={{ color: "var(--text-muted)" }} />
+                    <span className="badge-processing">② AI生成</span>
+                    <ArrowRight size={14} style={{ color: "var(--text-muted)" }} />
+                    <span className="badge-review">③ レビュー</span>
+                    <ArrowRight size={14} style={{ color: "var(--text-muted)" }} />
+                    <span className="badge-done">④ 公開+X投稿</span>
                 </div>
+                <span style={{ fontSize: 12, color: "var(--text-muted)" }}>MORODAS / OpenClaw / CLI 共通</span>
             </div>
 
-            {/* 統計 */}
-            <div className="grid grid-cols-4 gap-4 mb-6">
+            {/* 統計カード */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 24 }}>
                 {[
-                    { label: "全記事", value: stats.total, color: "text-surface-300" },
-                    { label: "レビュー待ち", value: stats.draft, color: "text-primary-400" },
-                    { label: "処理中", value: stats.generating, color: "text-yellow-400" },
-                    { label: "公開済み", value: stats.published, color: "text-green-400" },
+                    { label: "全記事", value: stats.total, color: "var(--text)" },
+                    { label: "レビュー待ち", value: stats.draft, color: "var(--primary)" },
+                    { label: "処理中", value: stats.generating, color: "var(--color-processing-text)" },
+                    { label: "公開済み", value: stats.published, color: "var(--success)" },
                 ].map((s) => (
-                    <div key={s.label} className="bg-sidebar rounded-xl p-4 border border-sidebar-hover text-center">
-                        <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-                        <p className="text-xs text-muted mt-1">{s.label}</p>
+                    <div key={s.label} className="card" style={{ padding: 16, textAlign: "center" }}>
+                        <p style={{ fontSize: 28, fontWeight: 700, color: s.color }}>{s.value}</p>
+                        <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>{s.label}</p>
                     </div>
                 ))}
             </div>
 
             {/* フィルター */}
-            <div className="flex gap-2 mb-6">
+            <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
                 {[
                     { key: "all", label: "すべて" },
                     { key: "generating", label: "生成中" },
@@ -204,10 +181,7 @@ export default function ContentStudioPage() {
                     <button
                         key={f.key}
                         onClick={() => setFilter(f.key)}
-                        className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${filter === f.key
-                                ? "bg-primary-500/20 text-primary-300 border border-primary-500/30"
-                                : "bg-sidebar text-muted hover:text-surface-300 border border-sidebar-hover"
-                            }`}
+                        className={`filter-pill ${filter === f.key ? "active" : ""}`}
                     >
                         {f.label}
                     </button>
@@ -216,114 +190,76 @@ export default function ContentStudioPage() {
 
             {/* コンテンツ一覧 */}
             {isLoading ? (
-                <div className="flex items-center justify-center py-20">
-                    <Loader2 size={32} className="animate-spin text-primary-400" />
+                <div className="flex-center" style={{ padding: 80 }}>
+                    <Loader2 size={32} className="animate-spin" style={{ color: "var(--primary)" }} />
                 </div>
             ) : filteredItems.length === 0 ? (
-                <div className="bg-sidebar rounded-xl p-12 border border-sidebar-hover text-center">
-                    <PenTool size={48} className="mx-auto text-muted mb-4" />
-                    <h3 className="text-xl font-bold text-surface-50 mb-2">まだコンテンツがありません</h3>
-                    <p className="text-muted mb-4">「記事を書く」からテーマを入力してください。</p>
-                    <p className="text-xs text-muted mb-6">
-                        💡 OpenClawからも指示できます：<code className="bg-foreground px-2 py-0.5 rounded text-surface-300">記事を書いて：AI導入の失敗事例</code>
+                <div className="card" style={{ padding: 48, textAlign: "center" }}>
+                    <div style={{ fontSize: 48, marginBottom: 16 }}>✍️</div>
+                    <h3 style={{ fontSize: 20, fontWeight: 700, color: "var(--text)", marginBottom: 8 }}>まだコンテンツがありません</h3>
+                    <p style={{ color: "var(--text-muted)", marginBottom: 8 }}>「記事を書く」からテーマを入力してください。</p>
+                    <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 24 }}>
+                        💡 OpenClawからも可：<code style={{ background: "var(--bg-input)", padding: "2px 8px", borderRadius: 4 }}>記事を書いて：AI導入の失敗事例</code>
                     </p>
-                    <button
-                        onClick={() => setShowCreateModal(true)}
-                        className="px-5 py-2.5 bg-primary-500 text-white rounded-lg font-medium hover:bg-primary-400 transition-colors"
-                    >
+                    <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
                         最初の記事を作る
                     </button>
                 </div>
             ) : (
-                <div className="space-y-3">
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                     {filteredItems.map((item) => {
-                        const statusInfo = getStatusInfo(item.status);
-                        const StatusIcon = statusInfo.icon;
-                        const isActionLoading = actionLoading === item.id;
+                        const si = getStatus(item.status);
+                        const isActing = actionLoading === item.id;
                         return (
-                            <div
-                                key={item.id}
-                                className="bg-sidebar rounded-xl p-5 border border-sidebar-hover hover:border-primary-500/30 transition-all group"
-                            >
-                                <div className="flex items-center justify-between">
-                                    <div className="flex-1 cursor-pointer" onClick={() => item.articleBody && setSelectedItem(item)}>
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <h3 className="text-lg font-semibold text-surface-50 group-hover:text-primary-300 transition-colors">
-                                                {item.title}
-                                            </h3>
-                                            <span className={`text-xs px-2.5 py-1 rounded-full flex items-center gap-1 ${statusInfo.color}`}>
-                                                <StatusIcon size={12} className={item.status === "generating" || item.status === "publishing" ? "animate-spin" : ""} />
-                                                {statusInfo.label}
+                            <div key={item.id} className="card" style={{ padding: "16px 20px" }}>
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                    <div style={{ flex: 1, cursor: item.articleBody ? "pointer" : "default" }} onClick={() => item.articleBody && setSelectedItem(item)}>
+                                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                                            <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text)" }}>{item.title}</h3>
+                                            <span className={si.badgeClass}>
+                                                {item.status === "generating" || item.status === "publishing" ? "⏳ " : ""}
+                                                {si.label}
                                             </span>
                                             {item.source && (
-                                                <span className="text-xs px-2 py-0.5 rounded bg-sidebar-hover text-muted">
+                                                <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: "var(--bg-surface)", color: "var(--text-muted)" }}>
                                                     via {item.source}
                                                 </span>
                                             )}
                                         </div>
-                                        <div className="flex items-center gap-4 text-xs text-muted">
+                                        <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 12, color: "var(--text-muted)" }}>
                                             {item.angle && <span>🎯 {item.angle}</span>}
                                             {item.keywords && <span>🏷️ {item.keywords}</span>}
-                                            <span className="flex items-center gap-1">
+                                            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
                                                 <Clock size={12} />
                                                 {new Date(item.createdAt).toLocaleDateString("ja-JP", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                                             </span>
                                         </div>
                                     </div>
 
-                                    {/* アクションボタン（ステータスに応じて表示） */}
-                                    <div className="flex items-center gap-2 ml-4">
-                                        {/* 候補 → AIで生成 */}
+                                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: 16 }}>
                                         {item.status === "candidate" && (
-                                            <button
-                                                onClick={() => triggerRegenerate(item.id)}
-                                                disabled={isActionLoading}
-                                                className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-400 text-white rounded-lg text-sm font-medium hover:from-primary-400 hover:to-primary-300 transition-all disabled:opacity-50"
-                                            >
-                                                {isActionLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                                            <button className="btn btn-primary" style={{ padding: "8px 16px", fontSize: 13 }} onClick={() => triggerRegenerate(item.id)} disabled={isActing}>
+                                                {isActing ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
                                                 AIで生成
                                             </button>
                                         )}
-
-                                        {/* レビュー待ち → 公開 or 再生成 */}
                                         {item.status === "draft" && (
                                             <>
-                                                <button
-                                                    onClick={() => setSelectedItem(item)}
-                                                    className="flex items-center gap-1.5 px-3 py-2 bg-sidebar-hover text-surface-300 rounded-lg text-sm hover:text-surface-50 transition-colors"
-                                                >
-                                                    <Eye size={14} />
-                                                    レビュー
+                                                <button className="btn-secondary" style={{ padding: "8px 14px", fontSize: 13, display: "flex", alignItems: "center", gap: 6, borderRadius: 8, cursor: "pointer" }} onClick={() => setSelectedItem(item)}>
+                                                    <Eye size={14} /> レビュー
                                                 </button>
-                                                <button
-                                                    onClick={() => triggerRegenerate(item.id)}
-                                                    disabled={isActionLoading}
-                                                    className="flex items-center gap-1.5 px-3 py-2 bg-sidebar-hover text-surface-400 rounded-lg text-sm hover:text-surface-300 transition-colors disabled:opacity-50"
-                                                >
-                                                    <RotateCcw size={14} />
-                                                    再生成
+                                                <button className="btn-secondary" style={{ padding: "8px 14px", fontSize: 13, display: "flex", alignItems: "center", gap: 6, borderRadius: 8, cursor: "pointer" }} onClick={() => triggerRegenerate(item.id)} disabled={isActing}>
+                                                    <RotateCcw size={14} /> 再生成
                                                 </button>
-                                                <button
-                                                    onClick={() => triggerPublish(item.id)}
-                                                    disabled={isActionLoading}
-                                                    className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg text-sm font-medium hover:from-green-500 hover:to-green-400 transition-all disabled:opacity-50"
-                                                >
-                                                    {isActionLoading ? <Loader2 size={14} className="animate-spin" /> : <Rocket size={14} />}
+                                                <button className="btn btn-primary" style={{ padding: "8px 16px", fontSize: 13, background: "linear-gradient(135deg, var(--success), #7AB89A)" }} onClick={() => triggerPublish(item.id)} disabled={isActing}>
+                                                    {isActing ? <Loader2 size={14} className="animate-spin" /> : <Rocket size={14} />}
                                                     公開 + X投稿
                                                 </button>
                                             </>
                                         )}
-
-                                        {/* 公開済み → リンク */}
                                         {item.status === "published" && item.wpPostUrl && (
-                                            <a
-                                                href={item.wpPostUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="flex items-center gap-1.5 px-3 py-2 bg-green-500/10 text-green-400 rounded-lg text-sm hover:bg-green-500/20 transition-colors"
-                                            >
-                                                <Globe size={14} />
-                                                記事を見る
+                                            <a href={item.wpPostUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ padding: "8px 14px", fontSize: 13, display: "flex", alignItems: "center", gap: 6, borderRadius: 8, textDecoration: "none", color: "var(--success)" }}>
+                                                <Globe size={14} /> 記事を見る
                                             </a>
                                         )}
                                     </div>
@@ -336,75 +272,69 @@ export default function ContentStudioPage() {
 
             {/* 新規作成モーダル */}
             {showCreateModal && (
-                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm">
-                    <div className="bg-sidebar rounded-2xl p-8 w-full max-w-lg border border-sidebar-hover shadow-2xl">
-                        <h2 className="text-2xl font-bold text-surface-50 mb-1 flex items-center gap-2">
-                            <Sparkles size={22} className="text-primary-400" />
+                <div style={{ position: "fixed", inset: 0, background: "rgba(62, 44, 35, 0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, backdropFilter: "blur(4px)" }}>
+                    <div style={{ background: "var(--color-surface-50)", borderRadius: 16, padding: 32, width: "100%", maxWidth: 480, border: "1px solid var(--border)", boxShadow: "0 16px 48px rgba(62, 44, 35, 0.15)" }}>
+                        <h2 style={{ fontSize: 22, fontWeight: 700, color: "var(--text)", marginBottom: 4, display: "flex", alignItems: "center", gap: 8 }}>
+                            <Sparkles size={20} style={{ color: "var(--primary)" }} />
                             〇〇の記事を書いて
                         </h2>
-                        <p className="text-muted text-sm mb-6">テーマを入れて「生成」を押すだけ。AIがアウトライン→執筆→編集を自動で行います。</p>
+                        <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 24 }}>テーマを入れて「生成」を押すだけ。AIがアウトライン→執筆→編集を自動で行います。</p>
 
-                        <div className="space-y-4">
+                        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                             <div>
-                                <label className="block text-sm font-medium text-surface-300 mb-1.5">テーマ *</label>
+                                <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: "var(--text)", marginBottom: 6 }}>テーマ *</label>
                                 <input
                                     type="text"
                                     value={newTheme}
                                     onChange={(e) => setNewTheme(e.target.value)}
-                                    className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-3 text-surface-50 focus:outline-none focus:border-primary-500 placeholder:text-muted text-lg"
+                                    className="design-textarea"
+                                    style={{ minHeight: "auto", padding: "12px 14px", fontSize: 16 }}
                                     placeholder="例：AI導入の失敗事例と対策"
                                     autoFocus
                                     onKeyDown={(e) => e.key === "Enter" && createArticle()}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-surface-300 mb-1.5">
-                                    独自の切り口 <span className="text-muted text-xs">（任意）</span>
+                                <label style={{ display: "block", fontSize: 14, fontWeight: 500, color: "var(--text)", marginBottom: 6 }}>
+                                    独自の切り口 <span style={{ fontSize: 12, color: "var(--text-muted)" }}>（任意）</span>
                                 </label>
                                 <input
                                     type="text"
                                     value={newAngle}
                                     onChange={(e) => setNewAngle(e.target.value)}
-                                    className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-3 text-surface-50 focus:outline-none focus:border-primary-500 placeholder:text-muted"
+                                    className="design-textarea"
+                                    style={{ minHeight: "auto", padding: "12px 14px" }}
                                     placeholder="例：中小企業の現場目線で、実体験ベース"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-surface-300 mb-1.5">
-                                    キーワード <span className="text-muted text-xs">（任意、カンマ区切り）</span>
+                                <label style={{ display: "block", fontSize: 14, fontWeight: 500, color: "var(--text)", marginBottom: 6 }}>
+                                    キーワード <span style={{ fontSize: 12, color: "var(--text-muted)" }}>（任意、カンマ区切り）</span>
                                 </label>
                                 <input
                                     type="text"
                                     value={newKeywords}
                                     onChange={(e) => setNewKeywords(e.target.value)}
-                                    className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-3 text-surface-50 focus:outline-none focus:border-primary-500 placeholder:text-muted"
+                                    className="design-textarea"
+                                    style={{ minHeight: "auto", padding: "12px 14px" }}
                                     placeholder="例：AI, 業務効率化, DX失敗"
                                 />
                             </div>
                         </div>
 
-                        <div className="mt-6 p-3 bg-foreground rounded-lg border border-sidebar-hover">
-                            <p className="text-xs text-muted text-center">
-                                📋 テーマだけでOK。切り口とキーワードはAIが自動で補完します。
-                            </p>
+                        <div style={{ marginTop: 16, padding: 12, background: "var(--bg-surface)", borderRadius: 8, textAlign: "center" }}>
+                            <p style={{ fontSize: 12, color: "var(--text-muted)" }}>📋 テーマだけでOK。切り口とキーワードはAIが自動で補完します。</p>
                         </div>
 
-                        <div className="flex items-center gap-3 mt-6">
-                            <button
-                                onClick={() => setShowCreateModal(false)}
-                                className="flex-1 px-4 py-3 bg-foreground text-surface-300 rounded-xl hover:bg-sidebar-hover transition-colors font-medium"
-                            >
+                        <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
+                            <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowCreateModal(false)}>
                                 キャンセル
                             </button>
-                            <button
-                                onClick={createArticle}
-                                disabled={!newTheme.trim() || isCreating}
-                                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-400 text-white rounded-xl font-semibold disabled:opacity-50 hover:from-primary-400 hover:to-primary-300 transition-all shadow-lg shadow-primary-500/20"
-                            >
+                            <button className="btn btn-primary" style={{ flex: 1 }} onClick={createArticle} disabled={!newTheme.trim() || isCreating}>
                                 {isCreating ? (
-                                    <><Loader2 size={18} className="animate-spin" /> 生成開始中…</>
+                                    <><Loader2 size={16} className="animate-spin" /> 生成開始中…</>
                                 ) : (
-                                    <><Send size={18} /> 生成スタート</>
+                                    <><Send size={16} /> 生成スタート</>
                                 )}
                             </button>
                         </div>
@@ -412,62 +342,44 @@ export default function ContentStudioPage() {
                 </div>
             )}
 
-            {/* 記事プレビュー（サイドパネル） */}
+            {/* 記事プレビュー */}
             {selectedItem && (
-                <div className="fixed inset-0 bg-black/60 flex items-center justify-end z-50 backdrop-blur-sm" onClick={() => setSelectedItem(null)}>
-                    <div className="bg-sidebar w-full max-w-2xl h-full overflow-y-auto border-l border-sidebar-hover" onClick={(e) => e.stopPropagation()}>
+                <div style={{ position: "fixed", inset: 0, background: "rgba(62, 44, 35, 0.4)", display: "flex", justifyContent: "flex-end", zIndex: 50, backdropFilter: "blur(4px)" }} onClick={() => setSelectedItem(null)}>
+                    <div style={{ background: "var(--color-surface-50)", width: "100%", maxWidth: 640, height: "100%", overflowY: "auto", borderLeft: "1px solid var(--border)" }} onClick={(e) => e.stopPropagation()}>
                         {/* ヘッダー */}
-                        <div className="sticky top-0 bg-sidebar/95 backdrop-blur border-b border-sidebar-hover p-6 flex items-center justify-between z-10">
-                            <div className="flex-1">
-                                <h2 className="text-xl font-bold text-surface-50">{selectedItem.title}</h2>
-                                <div className="flex items-center gap-2 mt-1">
-                                    {(() => {
-                                        const si = getStatusInfo(selectedItem.status);
-                                        return <span className={`text-xs px-2 py-0.5 rounded-full ${si.color}`}>{si.label}</span>;
-                                    })()}
-                                    {selectedItem.source && <span className="text-xs text-muted">via {selectedItem.source}</span>}
+                        <div style={{ position: "sticky", top: 0, background: "var(--color-surface-50)", borderBottom: "1px solid var(--border)", padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", zIndex: 10 }}>
+                            <div style={{ flex: 1 }}>
+                                <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--text)" }}>{selectedItem.title}</h2>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                                    <span className={getStatus(selectedItem.status).badgeClass}>{getStatus(selectedItem.status).label}</span>
+                                    {selectedItem.source && <span style={{ fontSize: 11, color: "var(--text-muted)" }}>via {selectedItem.source}</span>}
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                 {selectedItem.status === "draft" && (
                                     <>
-                                        <button
-                                            onClick={() => {
-                                                triggerRegenerate(selectedItem.id);
-                                                setSelectedItem(null);
-                                            }}
-                                            className="flex items-center gap-1.5 px-3 py-2 bg-sidebar-hover text-surface-300 rounded-lg text-sm hover:text-surface-50 transition-colors"
-                                        >
+                                        <button className="btn-secondary" style={{ padding: "8px 12px", fontSize: 13, display: "flex", alignItems: "center", gap: 4, borderRadius: 8, cursor: "pointer" }} onClick={() => { triggerRegenerate(selectedItem.id); setSelectedItem(null); }}>
                                             <RotateCcw size={14} /> 再生成
                                         </button>
-                                        <button
-                                            onClick={() => {
-                                                triggerPublish(selectedItem.id);
-                                                setSelectedItem(null);
-                                            }}
-                                            className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg text-sm font-medium hover:from-green-500 hover:to-green-400 transition-all"
-                                        >
+                                        <button className="btn btn-primary" style={{ padding: "8px 14px", fontSize: 13, background: "linear-gradient(135deg, var(--success), #7AB89A)" }} onClick={() => { triggerPublish(selectedItem.id); setSelectedItem(null); }}>
                                             <Rocket size={14} /> 公開 + X投稿
                                         </button>
                                     </>
                                 )}
-                                <button
-                                    onClick={() => setSelectedItem(null)}
-                                    className="text-muted hover:text-surface-300 transition-colors text-2xl ml-2"
-                                >
-                                    ×
+                                <button onClick={() => setSelectedItem(null)} style={{ background: "none", border: "none", cursor: "pointer", padding: 8, color: "var(--text-muted)", fontSize: 20 }}>
+                                    <X size={20} />
                                 </button>
                             </div>
                         </div>
                         {/* 本文 */}
-                        <div className="p-6">
+                        <div style={{ padding: 24 }}>
                             {selectedItem.articleBody ? (
-                                <div className="prose prose-invert max-w-none text-surface-200 leading-relaxed whitespace-pre-wrap text-sm">
+                                <div className="prose" style={{ whiteSpace: "pre-wrap" }}>
                                     {selectedItem.articleBody}
                                 </div>
                             ) : (
-                                <div className="text-center py-12 text-muted">
-                                    <FileText size={32} className="mx-auto mb-3" />
+                                <div style={{ textAlign: "center", padding: 48, color: "var(--text-muted)" }}>
+                                    <FileText size={32} style={{ margin: "0 auto 12px", display: "block" }} />
                                     <p>まだ本文が生成されていません。</p>
                                 </div>
                             )}

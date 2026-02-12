@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Globe, Check, Brain, Bot, Bell, Palette, ExternalLink, Wifi, WifiOff } from "lucide-react";
+import { User, Globe, Check, Brain, Bot, Bell, Palette, Wifi, WifiOff } from "lucide-react";
 
 interface Settings {
     user_name?: string;
@@ -15,7 +15,6 @@ interface Settings {
     notify_discord?: string;
 }
 
-// 実際に動いている連携サービス（ガワだけは表示しない）
 const realIntegrations = [
     {
         name: "n8n",
@@ -28,7 +27,7 @@ const realIntegrations = [
         name: "Gemini API",
         description: "AI推論（チャット・記事生成・ブリーフィング）",
         category: "AI",
-        checkEndpoint: null, // 環境変数で管理
+        checkEndpoint: null,
         configHint: "環境変数 GEMINI_API_KEY で設定済み",
     },
     {
@@ -59,7 +58,6 @@ export default function SettingsPage() {
             .then(({ data }) => setSettings(data || {}))
             .catch(console.error);
 
-        // n8n接続チェック
         fetch("/api/n8n")
             .then((res) => {
                 setN8nStatus(res.ok ? "connected" : "error");
@@ -84,42 +82,64 @@ export default function SettingsPage() {
         setIsSaving(false);
     };
 
-    return (
-        <div className="max-w-4xl">
-            <h1 className="text-3xl font-bold mb-8 text-surface-50">設定</h1>
+    const inputStyle: React.CSSProperties = {
+        width: "100%",
+        padding: "10px 14px",
+        background: "var(--bg-input)",
+        border: "1px solid var(--border)",
+        borderRadius: 8,
+        color: "var(--text)",
+        fontFamily: "inherit",
+        fontSize: 14,
+        outline: "none",
+    };
 
-            <div className="space-y-8">
+    const selectStyle: React.CSSProperties = {
+        ...inputStyle,
+        appearance: "none" as const,
+        WebkitAppearance: "none" as const,
+        backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238D7B6E' stroke-width='2'%3E%3Cpolyline points='6,9 12,15 18,9'/%3E%3C/svg%3E\")",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "right 12px center",
+        paddingRight: 36,
+    };
+
+    return (
+        <div style={{ maxWidth: 800 }}>
+            <h1 className="section-header" style={{ marginBottom: 32 }}>⚙️ 設定</h1>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
                 {/* プロフィール */}
-                <section className="bg-sidebar rounded-xl p-6 border border-sidebar-hover">
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="bg-sidebar-hover p-3 rounded-lg text-primary-500">
-                            <User size={24} />
+                <section className="card" style={{ padding: 24 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+                        <div style={{ background: "var(--bg-surface)", padding: 12, borderRadius: 10, color: "var(--primary)" }}>
+                            <User size={22} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-surface-50">プロフィール設定</h2>
-                            <p className="text-muted text-sm">アカウント情報を管理</p>
+                            <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--text)" }}>プロフィール設定</h2>
+                            <p style={{ fontSize: 13, color: "var(--text-muted)" }}>アカウント情報を管理</p>
                         </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                         <div>
-                            <label className="block text-sm font-medium text-muted mb-1">名前</label>
+                            <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "var(--text-muted)", marginBottom: 6 }}>名前</label>
                             <input
                                 type="text"
                                 value={settings.user_name || ""}
                                 onChange={(e) => setSettings({ ...settings, user_name: e.target.value })}
                                 onBlur={(e) => saveSetting("user_name", e.target.value)}
-                                className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50 focus:outline-none focus:border-primary-500"
+                                style={inputStyle}
                                 placeholder="あなたの名前"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-muted mb-1">メールアドレス</label>
+                            <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: "var(--text-muted)", marginBottom: 6 }}>メールアドレス</label>
                             <input
                                 type="email"
                                 value={settings.user_email || ""}
                                 onChange={(e) => setSettings({ ...settings, user_email: e.target.value })}
                                 onBlur={(e) => saveSetting("user_email", e.target.value)}
-                                className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50 focus:outline-none focus:border-primary-500"
+                                style={inputStyle}
                                 placeholder="email@example.com"
                             />
                         </div>
@@ -127,62 +147,60 @@ export default function SettingsPage() {
                 </section>
 
                 {/* MORODAS設定 */}
-                <section className="bg-sidebar rounded-xl p-6 border border-sidebar-hover">
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="bg-sidebar-hover p-3 rounded-lg text-primary-500">
-                            <Globe size={24} />
+                <section className="card" style={{ padding: 24 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+                        <div style={{ background: "var(--bg-surface)", padding: 12, borderRadius: 10, color: "var(--primary)" }}>
+                            <Globe size={22} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-surface-50">MORODAS設定</h2>
-                            <p className="text-muted text-sm">システム全体の設定</p>
+                            <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--text)" }}>MORODAS設定</h2>
+                            <p style={{ fontSize: 13, color: "var(--text-muted)" }}>システム全体の設定</p>
                         </div>
                     </div>
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between p-4 bg-foreground rounded-lg border border-sidebar-hover">
-                            <div>
-                                <span className="font-medium text-surface-50">停滞検知の閾値（日数）</span>
-                                <p className="text-xs text-muted">この日数を超えるとアラート</p>
-                            </div>
-                            <input
-                                type="number"
-                                value={settings.stagnation_threshold_days || "2"}
-                                onChange={(e) => saveSetting("stagnation_threshold_days", e.target.value)}
-                                className="bg-sidebar border border-sidebar-hover rounded px-3 py-2 text-surface-300 w-20"
-                            />
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 14, background: "var(--bg-surface)", borderRadius: 8, border: "1px solid var(--border)" }}>
+                        <div>
+                            <span style={{ fontWeight: 600, color: "var(--text)", fontSize: 14 }}>停滞検知の閾値（日数）</span>
+                            <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>この日数を超えるとアラート</p>
                         </div>
+                        <input
+                            type="number"
+                            value={settings.stagnation_threshold_days || "2"}
+                            onChange={(e) => saveSetting("stagnation_threshold_days", e.target.value)}
+                            style={{ ...inputStyle, width: 72, textAlign: "center" }}
+                        />
                     </div>
                 </section>
 
                 {/* AI設定 */}
-                <section className="bg-sidebar rounded-xl p-6 border border-sidebar-hover">
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="bg-sidebar-hover p-3 rounded-lg text-primary-500">
-                            <Bot size={24} />
+                <section className="card" style={{ padding: 24 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+                        <div style={{ background: "var(--bg-surface)", padding: 12, borderRadius: 10, color: "var(--primary)" }}>
+                            <Bot size={22} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-surface-50">AI設定</h2>
-                            <p className="text-muted text-sm">コンテンツ生成・AIアシスタントの設定</p>
+                            <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--text)" }}>AI設定</h2>
+                            <p style={{ fontSize: 13, color: "var(--text-muted)" }}>コンテンツ生成・AIアシスタントの設定</p>
                         </div>
                     </div>
-                    <div className="space-y-4">
-                        <div className="p-4 bg-foreground rounded-lg border border-sidebar-hover">
-                            <label className="block text-sm font-medium text-surface-50 mb-2">AIモデル</label>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                        <div style={{ padding: 14, background: "var(--bg-surface)", borderRadius: 8, border: "1px solid var(--border)" }}>
+                            <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 8 }}>AIモデル</label>
                             <select
                                 value={settings.ai_model || "flash"}
                                 onChange={(e) => saveSetting("ai_model", e.target.value)}
-                                className="w-full bg-sidebar border border-sidebar-hover rounded-lg px-4 py-2 text-surface-300 focus:outline-none focus:border-primary-500"
+                                style={selectStyle}
                             >
                                 <option value="flash">Gemini 2.0 Flash（高速・低コスト）</option>
                                 <option value="pro-25">Gemini 2.5 Pro（高品質）</option>
                                 <option value="pro-30">Gemini 3.0 Pro（最高品質）</option>
                             </select>
                         </div>
-                        <div className="p-4 bg-foreground rounded-lg border border-sidebar-hover">
-                            <label className="block text-sm font-medium text-surface-50 mb-2">記事のトーン</label>
+                        <div style={{ padding: 14, background: "var(--bg-surface)", borderRadius: 8, border: "1px solid var(--border)" }}>
+                            <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 8 }}>記事のトーン</label>
                             <select
                                 value={settings.ai_tone || "professional"}
                                 onChange={(e) => saveSetting("ai_tone", e.target.value)}
-                                className="w-full bg-sidebar border border-sidebar-hover rounded-lg px-4 py-2 text-surface-300 focus:outline-none focus:border-primary-500"
+                                style={selectStyle}
                             >
                                 <option value="professional">プロフェッショナル</option>
                                 <option value="casual">カジュアル・親しみやすい</option>
@@ -190,134 +208,126 @@ export default function SettingsPage() {
                                 <option value="storytelling">ストーリーテリング</option>
                             </select>
                         </div>
-                        <div className="p-4 bg-foreground rounded-lg border border-sidebar-hover">
-                            <label className="block text-sm font-medium text-surface-50 mb-2">ブランドボイス</label>
-                            <p className="text-xs text-muted mb-2">AIが記事やSNS投稿を書くときに参照するトーン指示</p>
+                        <div style={{ padding: 14, background: "var(--bg-surface)", borderRadius: 8, border: "1px solid var(--border)" }}>
+                            <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 4 }}>ブランドボイス</label>
+                            <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 8 }}>AIが記事やSNS投稿を書くときに参照するトーン指示</p>
                             <textarea
                                 value={settings.brand_voice || ""}
                                 onChange={(e) => setSettings({ ...settings, brand_voice: e.target.value })}
                                 onBlur={(e) => saveSetting("brand_voice", e.target.value)}
                                 rows={3}
-                                className="w-full bg-sidebar border border-sidebar-hover rounded-lg px-4 py-2 text-surface-300 focus:outline-none focus:border-primary-500 resize-none"
-                                placeholder="例: 「専門的だけど堅すぎない。具体例を多用して読者の行動を促す。AIの可能性に前向き。」"
+                                className="design-textarea"
+                                placeholder={'例: 「専門的だけど堅すぎない。具体例を多用して読者の行動を促す。AIの可能性に前向き。」'}
                             />
                         </div>
                     </div>
                 </section>
 
                 {/* 通知設定 */}
-                <section className="bg-sidebar rounded-xl p-6 border border-sidebar-hover">
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="bg-sidebar-hover p-3 rounded-lg text-primary-500">
-                            <Bell size={24} />
+                <section className="card" style={{ padding: 24 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+                        <div style={{ background: "var(--bg-surface)", padding: 12, borderRadius: 10, color: "var(--primary)" }}>
+                            <Bell size={22} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-surface-50">通知設定</h2>
-                            <p className="text-muted text-sm">タスク完了やアラートの通知先</p>
+                            <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--text)" }}>通知設定</h2>
+                            <p style={{ fontSize: 13, color: "var(--text-muted)" }}>タスク完了やアラートの通知先</p>
                         </div>
                     </div>
-                    <div className="space-y-4">
-                        <div className="p-4 bg-foreground rounded-lg border border-sidebar-hover">
-                            <label className="block text-sm font-medium text-surface-50 mb-2">Discord Webhook URL</label>
-                            <p className="text-xs text-muted mb-2">エージェント完了通知やアラートをDiscordに送信</p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                        <div style={{ padding: 14, background: "var(--bg-surface)", borderRadius: 8, border: "1px solid var(--border)" }}>
+                            <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 4 }}>Discord Webhook URL</label>
+                            <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 8 }}>エージェント完了通知やアラートをDiscordに送信</p>
                             <input
                                 type="url"
                                 value={settings.discord_webhook_url || ""}
                                 onChange={(e) => setSettings({ ...settings, discord_webhook_url: e.target.value })}
                                 onBlur={(e) => saveSetting("discord_webhook_url", e.target.value)}
-                                className="w-full bg-sidebar border border-sidebar-hover rounded-lg px-4 py-2 text-surface-300 focus:outline-none focus:border-primary-500"
+                                style={inputStyle}
                                 placeholder="https://discord.com/api/webhooks/..."
                             />
                         </div>
-                        <div className="flex items-center justify-between p-4 bg-foreground rounded-lg border border-sidebar-hover">
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 14, background: "var(--bg-surface)", borderRadius: 8, border: "1px solid var(--border)" }}>
                             <div>
-                                <span className="font-medium text-surface-50">メール通知</span>
-                                <p className="text-xs text-muted">重要なアラートをメールで受信</p>
+                                <span style={{ fontWeight: 600, color: "var(--text)", fontSize: 14 }}>メール通知</span>
+                                <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>重要なアラートをメールで受信</p>
                             </div>
-                            <span className="text-xs px-3 py-1 rounded-full bg-sidebar-hover text-muted">
+                            <span style={{ fontSize: 12, padding: "4px 12px", borderRadius: 9999, background: "var(--bg-surface)", color: "var(--text-muted)", border: "1px solid var(--border)" }}>
                                 Coming Soon
                             </span>
                         </div>
                     </div>
                 </section>
 
-                {/* 接続サービス（実際に動いているもののみ） */}
-                <section className="bg-sidebar rounded-xl p-6 border border-sidebar-hover">
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="bg-sidebar-hover p-3 rounded-lg text-primary-500">
-                            <Palette size={24} />
+                {/* 接続サービス */}
+                <section className="card" style={{ padding: 24 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+                        <div style={{ background: "var(--bg-surface)", padding: 12, borderRadius: 10, color: "var(--primary)" }}>
+                            <Palette size={22} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-surface-50">接続サービス</h2>
-                            <p className="text-muted text-sm">現在接続されている外部サービス</p>
+                            <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--text)" }}>接続サービス</h2>
+                            <p style={{ fontSize: 13, color: "var(--text-muted)" }}>現在接続されている外部サービス</p>
                         </div>
                     </div>
-                    <div className="space-y-3">
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                         {realIntegrations.map((service) => {
                             const isN8n = service.name === "n8n";
                             const status = isN8n ? n8nStatus : "connected";
                             const StatusIcon = status === "connected" ? Wifi : status === "error" ? WifiOff : Wifi;
                             const statusText = status === "connected" ? "接続済み" : status === "error" ? "接続エラー" : "確認中...";
-                            const statusColor = status === "connected"
-                                ? "bg-primary-500/10 text-primary-500"
-                                : status === "error"
-                                    ? "bg-red-500/10 text-red-400"
-                                    : "bg-yellow-500/10 text-yellow-400";
 
                             return (
-                                <div key={service.name} className="flex items-center justify-between p-4 bg-foreground rounded-lg border border-sidebar-hover">
-                                    <div className="flex items-center gap-4">
-                                        <StatusIcon size={18} className={status === "connected" ? "text-primary-500" : status === "error" ? "text-red-400" : "text-yellow-400"} />
+                                <div key={service.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 14, background: "var(--bg-surface)", borderRadius: 8, border: "1px solid var(--border)" }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                                        <StatusIcon size={18} style={{ color: status === "connected" ? "var(--success)" : status === "error" ? "var(--error)" : "var(--warning)" }} />
                                         <div>
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-medium text-surface-50">{service.name}</span>
-                                                <span className={`text-xs px-2 py-0.5 rounded-full ${statusColor}`}>
+                                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                                <span style={{ fontWeight: 600, fontSize: 14, color: "var(--text)" }}>{service.name}</span>
+                                                <span className={status === "connected" ? "badge-done" : status === "error" ? "badge-alert" : "badge-processing"}>
                                                     {statusText}
                                                 </span>
                                             </div>
-                                            <p className="text-xs text-muted mt-0.5">{service.description}</p>
+                                            <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{service.description}</p>
                                         </div>
                                     </div>
-                                    <span className="text-xs text-surface-400 hidden md:block">{service.category}</span>
+                                    <span style={{ fontSize: 12, color: "var(--text-muted)" }}>{service.category}</span>
                                 </div>
                             );
                         })}
                     </div>
 
-                    {/* 今後追加予定 */}
-                    <div className="mt-6 p-4 bg-foreground rounded-lg border border-dashed border-sidebar-hover">
-                        <p className="text-sm text-muted text-center">
-                            🔜 <strong className="text-surface-300">X/Twitter, Discord Bot</strong> の直接連携を追加予定
+                    <div style={{ marginTop: 16, padding: 14, background: "var(--bg-surface)", borderRadius: 8, border: "1px dashed var(--border)", textAlign: "center" }}>
+                        <p style={{ fontSize: 13, color: "var(--text-muted)" }}>
+                            🔜 <strong style={{ color: "var(--text)" }}>X/Twitter, Discord Bot</strong> の直接連携を追加予定
                         </p>
                     </div>
                 </section>
 
                 {/* ナレッジベース */}
-                <section className="bg-sidebar rounded-xl p-6 border border-sidebar-hover">
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="bg-sidebar-hover p-3 rounded-lg text-primary-500">
-                            <Brain size={24} />
+                <section className="card" style={{ padding: 24 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+                        <div style={{ background: "var(--bg-surface)", padding: 12, borderRadius: 10, color: "var(--primary)" }}>
+                            <Brain size={22} />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-surface-50">ナレッジベース</h2>
-                            <p className="text-muted text-sm">エージェントの学習データ</p>
+                            <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--text)" }}>ナレッジベース</h2>
+                            <p style={{ fontSize: 13, color: "var(--text-muted)" }}>エージェントの学習データ</p>
                         </div>
                     </div>
-                    <div className="p-4 bg-foreground rounded-lg border border-sidebar-hover">
-                        <div className="flex items-center justify-between">
+                    <div style={{ padding: 14, background: "var(--bg-surface)", borderRadius: 8, border: "1px solid var(--border)" }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                             <div>
-                                <p className="text-sm text-surface-300">Obsidian Vault（Vertex AI Search経由）</p>
-                                <p className="text-xs text-muted mt-1">500+ ファイルがRAG検索に利用可能</p>
+                                <p style={{ fontSize: 14, color: "var(--text)" }}>Obsidian Vault（Vertex AI Search経由）</p>
+                                <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>500+ ファイルがRAG検索に利用可能</p>
                             </div>
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-primary-500/10 text-primary-500">
-                                稼働中
-                            </span>
+                            <span className="badge-done">稼働中</span>
                         </div>
                     </div>
                 </section>
 
                 {saved && (
-                    <div className="fixed bottom-6 right-6 bg-primary-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg">
+                    <div style={{ position: "fixed", bottom: 24, right: 24, background: "var(--primary)", color: "white", padding: "10px 20px", borderRadius: 10, display: "flex", alignItems: "center", gap: 8, boxShadow: "var(--shadow)", fontSize: 14, fontWeight: 600 }}>
                         <Check size={16} /> 保存しました
                     </div>
                 )}
