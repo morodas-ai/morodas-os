@@ -18,6 +18,7 @@ import {
 import type { Alert, Task, Agent, Metric, MonthlyRevenue } from "@/types";
 import TaskItem from "./TaskItem";
 import AgentStatusCard from "./AgentStatusCard";
+import N8nStatusPanel from "./N8nStatusPanel";
 
 interface DashboardClientProps {
     initialAlerts: Alert[];
@@ -400,6 +401,9 @@ export default function DashboardClient({
                     </div>
                 </div>
             </div>
+
+            {/* n8nワークフロー稼働状況 */}
+            <N8nStatusPanel />
         </div>
     );
 }
