@@ -1,59 +1,28 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import AgentTemplateCard from "@/components/agents/AgentTemplateCard";
-import AgentTableClient from "@/components/agents/AgentTableClient";
-import {
-  Newspaper,
-  Search,
-  BarChart,
-  Target,
-  Ear,
-  Share2,
-  Globe2,
-  Calendar,
-  TrendingUp,
-  Compass
-} from "lucide-react";
-
-interface Agent {
-  id: string;
-  name: string;
-  type: string;
-  enabled: boolean;
-  lastRunAt: string | null;
-  updatedAt: string;
-}
-
-// エージェントテンプレート定義（NoimosAI参考：10種類）
-const agentTemplates = [
-  { title: "News Agent", description: "ニュースソースを監視してサマリーを生成", icon: Newspaper, type: "news" },
-  { title: "SEO / GEO Agent", description: "キーワード分析とローカルSEO最適化を提案", icon: Search, type: "seo" },
-  { title: "Growth Agent", description: "成長指標を追跡して機会を特定", icon: BarChart, type: "growth" },
-  { title: "競合戦略 Agent", description: "競合他社の動向を分析し戦略を提案", icon: Target, type: "competitor" },
-  { title: "ソーシャルリスニング Agent", description: "SNS上のブランド言及を監視・分析", icon: Ear, type: "social_listening" },
-  { title: "ソーシャルメディア Agent", description: "投稿スケジュールとエンゲージメント最適化", icon: Share2, type: "social_media" },
-  { title: "業界ニュース Agent", description: "業界トレンドとホットトピックを追跡", icon: Globe2, type: "industry_news" },
-  { title: "イベント/メディア Agent", description: "イベント機会とメディアアウトリーチを管理", icon: Calendar, type: "event_media" },
-  { title: "CVR最適化 Agent", description: "コンバージョン率の分析と改善提案", icon: TrendingUp, type: "cvr" },
-  { title: "戦略 Agent", description: "総合的なマーケティング戦略立案を支援", icon: Compass, type: "strategy" },
-];
+import { Plus, X } from "lucide-react";
+import TemplateGallery from "@/components/agents/TemplateGallery";
+import AgentListTable from "@/components/agents/AgentListTable";
+import AgentFilters from "@/components/agents/AgentFilters";
+import AgentCreationModal from "@/components/agents/AgentCreationModal";
+import AgentDetailPanel from "@/components/agents/AgentDetailPanel";
+import type { Agent } from "@/types";
 
 export default function AgentsPage() {
-  const router = useRouter();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCreationModal, setShowCreationModal] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
 
   const fetchAgents = async () => {
     try {
       const res = await fetch("/api/agents");
       const { data } = await res.json();
       setAgents(
-        data.map((a: { lastRunAt: string | null; updatedAt: string; createdAt: string }) => ({
+        data.map((a: any) => ({
           ...a,
           lastRunAt: a.lastRunAt || null,
-          updatedAt: a.updatedAt,
         }))
       );
     } catch (error) {
@@ -66,37 +35,122 @@ export default function AgentsPage() {
     fetchAgents();
   }, []);
 
-  const handleTemplateCreated = () => {
-    fetchAgents();
+  const handleToggleStatus = async (id: string, currentEnabled: boolean) => {
+    try {
+      await fetch(`/api/agents/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled: !currentEnabled }),
+      });
+      setAgents(agents.map((a) => (a.id === id ? { ...a, enabled: !currentEnabled } : a)));
+    } catch (error) {
+      console.error("Failed to toggle agent:", error);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this agent?")) return;
+    try {
+      await fetch(`/api/agents/${id}`, { method: "DELETE" });
+      setAgents(agents.filter((a) => a.id !== id));
+      if (selectedAgent?.id === id) setSelectedAgent(null);
+    } catch (error) {
+      console.error("Failed to delete agent:", error);
+    }
   };
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6 text-slate-50">エージェント管理</h1>
+    <div className="min-h-screen bg-foreground text-surface-50 p-6 md:p-8 space-y-10 max-w-[1600px] mx-auto">
 
-      {/* 10種類のエージェントテンプレート */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        {agentTemplates.map((template) => (
-          <AgentTemplateCard
-            key={template.type}
-            title={template.title}
-            description={template.description}
-            icon={template.icon}
-            type={template.type}
-            onCreated={handleTemplateCreated}
+      {/* Header & Templates Section */}
+      <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-400 to-primary-400 bg-clip-text text-transparent">
+              おすすめテンプレート
+            </h1>
+            <p className="text-muted mt-2">
+              よく使うユースケースのショートカット
+            </p>
+          </div>
+        </div>
+
+        {/* Horizontal Scroll Template Gallery */}
+        <TemplateGallery />
+      </section>
+
+      {/* Agents List Section */}
+      <section className="space-y-6">
+        <div className="flex items-center justify-between border-b border-sidebar pb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-surface-100">エージェント</h2>
+            <p className="text-muted mt-1">
+              AIエージェントの管理と活動状況の確認
+            </p>
+          </div>
+          <button
+            onClick={() => setShowCreationModal(true)}
+            className="flex items-center gap-2 px-5 py-2.5 bg-primary-500 hover:bg-primary-400 text-foreground font-bold rounded-lg transition-all shadow-lg hover:shadow-primary-500/20"
+          >
+            <Plus size={20} />
+            <span>新規作成</span>
+          </button>
+        </div>
+
+        {/* Filters & Table */}
+        <div>
+          <AgentFilters />
+
+          {loading ? (
+            <div className="h-64 flex items-center justify-center border border-sidebar rounded-xl bg-foreground/30">
+              <div className="flex flex-col items-center gap-3 text-surface-500">
+                <div className="w-8 h-8 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                読み込み中...
+              </div>
+            </div>
+          ) : (
+            <AgentListTable
+              agents={agents}
+              onToggleStatus={handleToggleStatus}
+              onDelete={handleDelete}
+              onSelectAgent={(agent) => setSelectedAgent(agent)}
+            />
+          )}
+        </div>
+      </section>
+
+      {/* Agent Detail Panel (slide-out) */}
+      {selectedAgent && (
+        <div className="fixed inset-0 z-[80] flex justify-end">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setSelectedAgent(null)}
           />
-        ))}
-      </div>
-
-      <div className="mb-4">
-        <h2 className="text-xl font-bold text-slate-50">登録済みエージェント</h2>
-      </div>
-
-      {loading ? (
-        <div className="bg-slate-800 rounded-xl p-8 text-center text-slate-400">読み込み中...</div>
-      ) : (
-        <AgentTableClient initialAgents={agents} />
+          <div className="relative w-full max-w-2xl bg-foreground border-l border-sidebar-hover shadow-2xl overflow-y-auto animate-in slide-in-from-right duration-300">
+            <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-foreground/95 backdrop-blur border-b border-sidebar">
+              <h2 className="text-lg font-bold text-white">{selectedAgent.name}</h2>
+              <button
+                onClick={() => setSelectedAgent(null)}
+                className="p-2 text-muted hover:text-white hover:bg-sidebar-hover rounded-lg transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="p-6">
+              <AgentDetailPanel agentId={selectedAgent.id} />
+            </div>
+          </div>
+        </div>
       )}
+
+      {/* Agent Creation Modal */}
+      <AgentCreationModal
+        isOpen={showCreationModal}
+        onClose={() => {
+          setShowCreationModal(false);
+          fetchAgents();
+        }}
+      />
     </div>
   );
 }

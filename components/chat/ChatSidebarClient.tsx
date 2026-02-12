@@ -5,16 +5,10 @@ import { MessageSquare, Plus, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 import clsx from "clsx";
-
-interface Session {
-    id: string;
-    title: string;
-    lastMessage: string;
-    updatedAt: string;
-}
+import type { ChatSession } from "@/types";
 
 interface ChatSidebarClientProps {
-    sessions: Session[];
+    sessions: ChatSession[];
     activeSessionId: string | null;
     onSelectSession: (id: string) => void;
     onNewChat: () => void;
@@ -49,11 +43,11 @@ export default function ChatSidebarClient({
     };
 
     return (
-        <div className="w-64 bg-slate-800 border-r border-slate-700 flex flex-col h-full rounded-l-xl">
-            <div className="p-4 border-b border-slate-700">
+        <div className="w-64 bg-gray-50 border-r border-gray-200 flex flex-col h-full rounded-l-xl">
+            <div className="p-4 border-b border-gray-200">
                 <button
                     onClick={onNewChat}
-                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg py-2 flex items-center justify-center gap-2 transition-colors"
+                    className="w-full bg-primary-500 hover:bg-primary-600 text-white rounded-lg py-2 flex items-center justify-center gap-2 transition-colors"
                 >
                     <Plus size={16} />
                     新規チャット
@@ -61,7 +55,7 @@ export default function ChatSidebarClient({
             </div>
             <div className="flex-1 overflow-y-auto p-2 space-y-1">
                 {sessions.length === 0 ? (
-                    <div className="text-center text-slate-500 py-8 text-sm">
+                    <div className="text-center text-gray-400 py-8 text-sm">
                         チャット履歴がありません
                     </div>
                 ) : (
@@ -72,24 +66,24 @@ export default function ChatSidebarClient({
                             className={clsx(
                                 "p-3 rounded-lg cursor-pointer transition-colors group relative",
                                 activeSessionId === session.id
-                                    ? "bg-slate-700 border border-emerald-500/50"
-                                    : "hover:bg-slate-700"
+                                    ? "bg-primary-100 border border-primary-300"
+                                    : "hover:bg-gray-100"
                             )}
                         >
-                            <div className="flex items-center gap-3 text-slate-300 group-hover:text-white">
+                            <div className="flex items-center gap-3 text-gray-600 group-hover:text-gray-900">
                                 <MessageSquare
                                     size={16}
                                     className={clsx(
-                                        activeSessionId === session.id ? "text-emerald-500" : "text-slate-500 group-hover:text-emerald-500"
+                                        activeSessionId === session.id ? "text-primary-500" : "text-gray-400 group-hover:text-primary-500"
                                     )}
                                 />
                                 <div className="flex-1 overflow-hidden">
                                     <p className="truncate font-medium text-sm">{session.title}</p>
-                                    <p className="text-xs text-slate-500 truncate">{session.lastMessage || formatTime(session.updatedAt)}</p>
+                                    <p className="text-xs text-gray-400 truncate">{session.lastMessage || formatTime(session.updatedAt)}</p>
                                 </div>
                                 <button
                                     onClick={(e) => deleteSession(session.id, e)}
-                                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-900/30 rounded text-slate-400 hover:text-red-500 transition-all"
+                                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 rounded text-gray-400 hover:text-red-500 transition-all"
                                 >
                                     <Trash2 size={14} />
                                 </button>

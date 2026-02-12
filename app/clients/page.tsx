@@ -23,8 +23,8 @@ export default async function ClientsPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-emerald-400">クライアントCRM</h1>
-        <p className="text-slate-400 text-sm mt-1">リードから成約までパイプラインを管理</p>
+        <h1 className="text-3xl font-bold text-primary-400">クライアントCRM</h1>
+        <p className="text-muted text-sm mt-1">リードから成約までパイプラインを管理</p>
       </div>
       <KanbanBoardClient initialClients={clients} />
     </div>

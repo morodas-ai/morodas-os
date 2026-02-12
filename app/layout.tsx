@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const notoSansJP = Noto_Sans_JP({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700", "900"], variable: "--font-noto-sans-jp" });
 
 export const metadata: Metadata = {
   title: "MORODAS OS - AI Operating System",
@@ -17,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className={`${inter.className} antialiased`}>
+      <body className={`${notoSansJP.className} ${inter.variable} antialiased`}>
         <div className="flex min-h-screen">
           <Sidebar />
           <main className="flex-1 ml-64 min-h-screen overflow-y-auto">

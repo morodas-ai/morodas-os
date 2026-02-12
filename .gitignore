@@ -41,3 +41,15 @@ yarn-error.log*
 next-env.d.ts
 
 /app/generated/prisma
+.env
+.env*.local
+
+# databases
+*.sqlite
+*.db
+
+# security — never commit keys
+vps_key*
+recover_key*
+*.key
+gcp-service-account.json

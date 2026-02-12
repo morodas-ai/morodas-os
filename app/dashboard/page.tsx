@@ -1,8 +1,12 @@
 import prisma from "@/lib/prisma";
 import DashboardClient from "@/components/dashboard/DashboardClient";
+import { checkStagnation } from "@/lib/monitor";
 
 async function getDashboardData() {
-  const [alerts, tasks, metrics, monthlyRevenue, agents, settings] = await Promise.all([
+  // 停滞チェックを実行（最新の状態に更新）
+  await checkStagnation();
+
+  const [alerts, tasks, metrics, monthlyRevenue, agents] = await Promise.all([
     // アクティブなアラート
     prisma.alert.findMany({
       where: { isDismissed: false },
@@ -49,19 +53,7 @@ async function getDashboardData() {
       },
       orderBy: { lastRunAt: "desc" },
     }),
-
-    // 設定
-    prisma.setting.findMany(),
   ]);
-
-  // 法人化までの日数を計算
-  const incorporationSetting = settings.find(s => s.key === "incorporation_date");
-  let daysToIncorporation = null;
-  if (incorporationSetting) {
-    const targetDate = new Date(incorporationSetting.value);
-    const today = new Date();
-    daysToIncorporation = Math.ceil((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-  }
 
   // メトリクスをマップに変換
   const metricsMap = Object.fromEntries(metrics.map(m => [m.name, m]));
@@ -86,7 +78,6 @@ async function getDashboardData() {
     metricsMap,
     monthlyRevenue,
     agents: serializedAgents,
-    daysToIncorporation,
   };
 }
 
@@ -97,7 +88,6 @@ export default async function DashboardPage() {
     metricsMap,
     monthlyRevenue,
     agents,
-    daysToIncorporation,
   } = await getDashboardData();
 
   return (
@@ -107,7 +97,6 @@ export default async function DashboardPage() {
       agents={agents}
       metricsMap={metricsMap}
       monthlyRevenue={monthlyRevenue}
-      daysToIncorporation={daysToIncorporation}
     />
   );
 }

@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
 }
 
 // ===========================================
@@ -32,6 +32,8 @@ model Agent {
   reports         Report[]     // このエージェントが生成したレポート
   agentTools      AgentTool[]  // 連携ツール
   triggers        Trigger[]    // 実行トリガー
+  tasks           Task[]       // 割り当てられたタスク
+
   
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
@@ -163,6 +165,14 @@ model Task {
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  // エージェント連携
+  agentId     String?
+  agent       Agent?   @relation(fields: [agentId], references: [id])
+  
+  // GitHub連携（Jules用）
+  githubIssueNumber Int?
+  githubIssueUrl    String?
 }
 
 // ===========================================
@@ -336,6 +346,43 @@ model Content {
 }
 
 // ===========================================
+// コンテンツパイプライン（AI記事生成）
+// ===========================================
+
+model ContentIdea {
+  id              String   @id @default(cuid())
+  
+  // ネタ情報（n8nから受信）
+  title           String
+  source          String?   // "TechCrunch", "HackerNews", "AI-Scholar"
+  sourceUrl       String?
+  angle           String?   // 独自切り口
+  score           Int       @default(0)  // Gemini評価スコア（0-100）
+  keywords        String?   // JSON配列
+  summary         String?   // ネタの要約
+  
+  // パイプラインステータス
+  // candidate → approved → generating → draft → publishing → published → rejected
+  status          String    @default("candidate")
+  
+  // 生成された記事
+  articleBody     String?   // Markdown本文
+  articleMeta     String?   // JSON (SEOメタデータ)
+  
+  // WordPress連携
+  wpPostId        Int?
+  wpPostUrl       String?
+  
+  // n8n連携
+  n8nExecutionId  String?
+  
+  batchDate       DateTime  @default(now())  // どの回のバッチか
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// ===========================================
 // システム設定
 // ===========================================
 
@@ -374,3 +421,47 @@ model Message {
   @@index([sessionId])
 }
 
+// ===========================================
+// ナレッジベース（Wiki/Pages）
+// ===========================================
+
+model KnowledgePage {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @default("")
+  category  String   @default("general") // general, product, marketing, technical, operations
+  tags      String   @default("[]")      // JSON array of tags
+  emoji     String   @default("📄")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+// ===========================================
+// 面接準備システム (Interview Prep)
+// ===========================================
+
+model InterviewCase {
+  id              String   @id @default(cuid())
+  title           String                  // 案件名（例: "営業マネージャー採用 - 田中太郎"）
+  jobPosting      String                  // 求人票テキスト
+  resume          String                  // 履歴書テキスト
+  personaNote     String?                 // 求める人物像メモ（任意）
+  jobCategory     String                  // 職種カテゴリ
+  interviewFormat String                 // 面接形式
+  
+  // AI生成結果
+  questionSheet   String?                 // 質問シート（Markdown）
+  evaluationSheet String?                // 評価シート（Markdown）
+  candidateReport String?                // 候補者レポート（Markdown）
+  
+  // 面接後（任意）
+  evaluationResult String?                // 面接官が入力した評価結果（JSON）
+  postReview      String?                 // AI振り返りサマリー
+  
+  status          String   @default("draft")  // draft, generating, ready, evaluated
+  
+  updatedAt       DateTime @updatedAt
+  createdAt       DateTime @default(now())
+}

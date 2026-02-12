@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { calculateNextFireAt } from "@/lib/triggerSchedule";
 
 const prisma = new PrismaClient();
 
@@ -31,6 +32,18 @@ export async function POST(
         const body = await request.json();
         const { name, frequency, dayOfWeek, dayOfMonth, hour, minute } = body;
 
+        const resolvedHour = hour ?? 9;
+        const resolvedMinute = minute ?? 0;
+
+        // 次回実行日時を計算
+        const nextFireAt = calculateNextFireAt({
+            frequency,
+            dayOfWeek: frequency === "weekly" ? dayOfWeek : null,
+            dayOfMonth: frequency === "monthly" ? dayOfMonth : null,
+            hour: resolvedHour,
+            minute: resolvedMinute,
+        });
+
         const trigger = await prisma.trigger.create({
             data: {
                 agentId: id,
@@ -38,9 +51,10 @@ export async function POST(
                 frequency,
                 dayOfWeek: frequency === "weekly" ? dayOfWeek : null,
                 dayOfMonth: frequency === "monthly" ? dayOfMonth : null,
-                hour: hour ?? 9,
-                minute: minute ?? 0,
+                hour: resolvedHour,
+                minute: resolvedMinute,
                 enabled: true,
+                nextFireAt,
             },
         });
 
@@ -61,11 +75,30 @@ export async function PATCH(
         const body = await request.json();
         const { triggerId, enabled, ...updates } = body;
 
+        // enabledがtrueに変わった場合、またはスケジュール変更がある場合はnextFireAtを再計算
+        let nextFireAt: Date | undefined;
+        if (enabled === true || updates.frequency || updates.hour !== undefined || updates.minute !== undefined) {
+            // 現在のトリガー情報を取得
+            const current = await prisma.trigger.findUnique({ where: { id: triggerId } });
+            if (current) {
+                nextFireAt = calculateNextFireAt({
+                    frequency: updates.frequency || current.frequency,
+                    dayOfWeek: updates.dayOfWeek !== undefined ? updates.dayOfWeek : current.dayOfWeek,
+                    dayOfMonth: updates.dayOfMonth !== undefined ? updates.dayOfMonth : current.dayOfMonth,
+                    hour: updates.hour !== undefined ? updates.hour : current.hour,
+                    minute: updates.minute !== undefined ? updates.minute : current.minute,
+                });
+            }
+        }
+
         const trigger = await prisma.trigger.update({
             where: { id: triggerId },
             data: {
                 enabled: enabled !== undefined ? enabled : undefined,
                 ...updates,
+                ...(nextFireAt ? { nextFireAt } : {}),
+                // 無効化時はnextFireAtをクリア
+                ...(enabled === false ? { nextFireAt: null } : {}),
             },
         });
 

@@ -45,7 +45,7 @@ const statusStyles: Record<string, string> = {
     review: "badge-review",
     processing: "badge-processing",
     done: "badge-done",
-    archived: "bg-slate-100 text-slate-600",
+    archived: "bg-surface-100 text-foreground",
 };
 
 const statusLabels: Record<string, string> = {
@@ -211,27 +211,27 @@ export default function FeedClient({ initialReports, initialAlerts }: FeedClient
                                 <div className="relative">
                                     <button
                                         onClick={() => setOpenMenuId(openMenuId === report.id ? null : report.id)}
-                                        className="text-slate-400 hover:text-slate-600 p-1"
+                                        className="text-muted hover:text-foreground p-1"
                                     >
                                         <MoreHorizontal size={18} />
                                     </button>
                                     {openMenuId === report.id && (
-                                        <div className="absolute right-0 top-8 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-10 w-40">
+                                        <div className="absolute right-0 top-8 bg-white border border-surface-200 rounded-lg shadow-lg py-1 z-10 w-40">
                                             <button
                                                 onClick={() => updateReportStatus(report.id, "done")}
-                                                className="w-full px-4 py-2 text-left text-sm hover:bg-slate-50 flex items-center gap-2"
+                                                className="w-full px-4 py-2 text-left text-sm hover:bg-surface-50 flex items-center gap-2"
                                             >
                                                 <Check size={14} /> 完了にする
                                             </button>
                                             <button
                                                 onClick={() => updateReportStatus(report.id, "archived")}
-                                                className="w-full px-4 py-2 text-left text-sm hover:bg-slate-50 flex items-center gap-2"
+                                                className="w-full px-4 py-2 text-left text-sm hover:bg-surface-50 flex items-center gap-2"
                                             >
                                                 <Archive size={14} /> アーカイブ
                                             </button>
                                             <button
                                                 onClick={() => updateReportStatus(report.id, "review")}
-                                                className="w-full px-4 py-2 text-left text-sm hover:bg-slate-50 flex items-center gap-2 text-red-600"
+                                                className="w-full px-4 py-2 text-left text-sm hover:bg-surface-50 flex items-center gap-2 text-red-600"
                                             >
                                                 <Trash2 size={14} /> 削除
                                             </button>
@@ -243,25 +243,25 @@ export default function FeedClient({ initialReports, initialAlerts }: FeedClient
                             {/* エージェント情報 */}
                             <div className="flex items-center gap-2 mb-2">
                                 <AgentIcon size={16} className={agentInfo.color} />
-                                <span className="text-sm font-medium text-slate-600">{report.agent.name}</span>
+                                <span className="text-sm font-medium text-foreground">{report.agent.name}</span>
                             </div>
 
                             {/* タイトル */}
-                            <h3 className="font-bold text-lg text-slate-900 mb-2 line-clamp-2">
+                            <h3 className="font-bold text-lg text-foreground mb-2 line-clamp-2">
                                 {report.title}
                             </h3>
 
                             {/* ワークスペース */}
-                            <p className="text-xs text-slate-400 mb-3">{report.workspace}</p>
+                            <p className="text-xs text-muted mb-3">{report.workspace}</p>
 
                             {/* 説明文 */}
-                            <p className="text-sm text-slate-600 line-clamp-3 mb-4 flex-1">
+                            <p className="text-sm text-foreground line-clamp-3 mb-4 flex-1">
                                 {report.description}
                             </p>
 
                             {/* フッター */}
-                            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                                <div className="flex items-center gap-2 text-xs text-slate-400">
+                            <div className="flex items-center justify-between pt-4 border-t border-surface-100">
+                                <div className="flex items-center gap-2 text-xs text-muted">
                                     <Clock size={14} />
                                     <span>{new Date(report.createdAt).toLocaleString("ja-JP")}</span>
                                 </div>
@@ -279,7 +279,7 @@ export default function FeedClient({ initialReports, initialAlerts }: FeedClient
             </div>
 
             {filteredReports.length === 0 && (
-                <div className="text-center py-12 text-slate-500">
+                <div className="text-center py-12 text-surface-500">
                     <p>該当するレポートがありません。</p>
                 </div>
             )}

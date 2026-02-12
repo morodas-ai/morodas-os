@@ -14,8 +14,8 @@ const data = [
 
 export default function EngagementChart() {
   return (
-    <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 h-96">
-      <h3 className="font-bold text-slate-50 mb-4">X Engagement (30 Days)</h3>
+    <div className="bg-sidebar rounded-xl p-6 border border-sidebar-hover h-96">
+      <h3 className="font-bold text-surface-50 mb-4">X Engagement (30 Days)</h3>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#334155" />

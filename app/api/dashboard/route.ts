@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 // GET: ダッシュボードデータを取得
 export async function GET() {
     // 並列でデータを取得
-    const [alerts, tasks, metrics, monthlyRevenue, agents, settings] = await Promise.all([
+    const [alerts, tasks, metrics, monthlyRevenue, agents] = await Promise.all([
         // アクティブなアラート
         prisma.alert.findMany({
             where: { isDismissed: false },
@@ -52,19 +52,7 @@ export async function GET() {
             },
             orderBy: { lastRunAt: "desc" },
         }),
-
-        // 設定（法人化日等）
-        prisma.setting.findMany(),
     ]);
-
-    // 法人化までの日数を計算
-    const incorporationSetting = settings.find(s => s.key === "incorporation_date");
-    let daysToIncorporation = null;
-    if (incorporationSetting) {
-        const targetDate = new Date(incorporationSetting.value);
-        const today = new Date();
-        daysToIncorporation = Math.ceil((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    }
 
     return NextResponse.json({
         alerts,
@@ -75,7 +63,5 @@ export async function GET() {
             ...a,
             reportCount: a._count.reports,
         })),
-        daysToIncorporation,
-        settings,
     });
 }

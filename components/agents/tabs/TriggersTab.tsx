@@ -125,7 +125,7 @@ export default function TriggersTab({ agentId }: TriggersTabProps) {
     if (loading) {
         return (
             <div className="flex items-center justify-center py-12">
-                <Loader2 className="animate-spin text-emerald-400" size={24} />
+                <Loader2 className="animate-spin text-primary-400" size={24} />
             </div>
         );
     }
@@ -133,7 +133,7 @@ export default function TriggersTab({ agentId }: TriggersTabProps) {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
-                <p className="text-sm text-slate-400">
+                <p className="text-sm text-muted">
                     エージェントの自動実行スケジュールを設定します。
                 </p>
                 <button
@@ -147,26 +147,26 @@ export default function TriggersTab({ agentId }: TriggersTabProps) {
 
             {/* 新規作成フォーム */}
             {showForm && (
-                <div className="bg-slate-700/50 rounded-xl p-4 border border-slate-600 space-y-4">
+                <div className="bg-sidebar-hover/50 rounded-xl p-4 border border-foreground space-y-4">
                     <h4 className="font-medium text-white">新しいトリガー</h4>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm text-slate-400 mb-1">名前</label>
+                            <label className="block text-sm text-muted mb-1">名前</label>
                             <input
                                 type="text"
                                 value={formData.name}
                                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                                 placeholder="毎週月曜9時"
-                                className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                                className="w-full px-3 py-2 bg-sidebar border border-foreground rounded-lg text-white"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm text-slate-400 mb-1">頻度</label>
+                            <label className="block text-sm text-muted mb-1">頻度</label>
                             <select
                                 value={formData.frequency}
                                 onChange={(e) => setFormData(prev => ({ ...prev, frequency: e.target.value }))}
-                                className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                                className="w-full px-3 py-2 bg-sidebar border border-foreground rounded-lg text-white"
                             >
                                 {frequencyOptions.map(opt => (
                                     <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -177,11 +177,11 @@ export default function TriggersTab({ agentId }: TriggersTabProps) {
 
                     {formData.frequency === "weekly" && (
                         <div>
-                            <label className="block text-sm text-slate-400 mb-1">曜日</label>
+                            <label className="block text-sm text-muted mb-1">曜日</label>
                             <select
                                 value={formData.dayOfWeek}
                                 onChange={(e) => setFormData(prev => ({ ...prev, dayOfWeek: parseInt(e.target.value) }))}
-                                className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                                className="w-full px-3 py-2 bg-sidebar border border-foreground rounded-lg text-white"
                             >
                                 {dayOfWeekLabels.map((label, index) => (
                                     <option key={index} value={index}>{label}曜日</option>
@@ -192,11 +192,11 @@ export default function TriggersTab({ agentId }: TriggersTabProps) {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm text-slate-400 mb-1">時</label>
+                            <label className="block text-sm text-muted mb-1">時</label>
                             <select
                                 value={formData.hour}
                                 onChange={(e) => setFormData(prev => ({ ...prev, hour: parseInt(e.target.value) }))}
-                                className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                                className="w-full px-3 py-2 bg-sidebar border border-foreground rounded-lg text-white"
                             >
                                 {Array.from({ length: 24 }, (_, i) => (
                                     <option key={i} value={i}>{String(i).padStart(2, "0")}</option>
@@ -204,11 +204,11 @@ export default function TriggersTab({ agentId }: TriggersTabProps) {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm text-slate-400 mb-1">分</label>
+                            <label className="block text-sm text-muted mb-1">分</label>
                             <select
                                 value={formData.minute}
                                 onChange={(e) => setFormData(prev => ({ ...prev, minute: parseInt(e.target.value) }))}
-                                className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                                className="w-full px-3 py-2 bg-sidebar border border-foreground rounded-lg text-white"
                             >
                                 {[0, 15, 30, 45].map(m => (
                                     <option key={m} value={m}>{String(m).padStart(2, "0")}</option>
@@ -220,7 +220,7 @@ export default function TriggersTab({ agentId }: TriggersTabProps) {
                     <div className="flex justify-end gap-2">
                         <button
                             onClick={() => setShowForm(false)}
-                            className="px-4 py-2 text-slate-400 hover:text-white"
+                            className="px-4 py-2 text-muted hover:text-white"
                         >
                             キャンセル
                         </button>
@@ -243,20 +243,20 @@ export default function TriggersTab({ agentId }: TriggersTabProps) {
                         className={clsx(
                             "flex items-center justify-between p-4 rounded-xl border transition-all",
                             trigger.enabled
-                                ? "bg-emerald-500/10 border-emerald-500/30"
-                                : "bg-slate-700/50 border-slate-600"
+                                ? "bg-primary-500/10 border-primary-500/30"
+                                : "bg-sidebar-hover/50 border-foreground"
                         )}
                     >
                         <div className="flex items-center gap-3">
                             <div className={clsx(
                                 "w-10 h-10 rounded-lg flex items-center justify-center",
-                                trigger.enabled ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-600 text-slate-400"
+                                trigger.enabled ? "bg-primary-500/20 text-primary-400" : "bg-foreground text-muted"
                             )}>
                                 <Clock size={20} />
                             </div>
                             <div>
                                 <h4 className="font-medium text-white">{trigger.name || formatSchedule(trigger)}</h4>
-                                <p className="text-sm text-slate-400">{formatSchedule(trigger)}</p>
+                                <p className="text-sm text-muted">{formatSchedule(trigger)}</p>
                             </div>
                         </div>
 
@@ -266,8 +266,8 @@ export default function TriggersTab({ agentId }: TriggersTabProps) {
                                 className={clsx(
                                     "p-2 rounded-lg transition-colors",
                                     trigger.enabled
-                                        ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"
-                                        : "bg-slate-600 text-slate-400 hover:bg-slate-500"
+                                        ? "bg-primary-500/20 text-primary-400 hover:bg-primary-500/30"
+                                        : "bg-foreground text-muted hover:bg-surface-500"
                                 )}
                             >
                                 <Power size={18} />
@@ -284,7 +284,7 @@ export default function TriggersTab({ agentId }: TriggersTabProps) {
             </div>
 
             {triggers.length === 0 && !showForm && (
-                <div className="text-center py-8 text-slate-400">
+                <div className="text-center py-8 text-muted">
                     スケジュールされたトリガーはありません
                 </div>
             )}

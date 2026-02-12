@@ -9,8 +9,8 @@ const STAGES = [
     { id: "lead", title: "リード", color: "text-blue-400" },
     { id: "negotiating", title: "商談中", color: "text-yellow-400" },
     { id: "proposed", title: "提案済", color: "text-purple-400" },
-    { id: "won", title: "成約", color: "text-emerald-400" },
-    { id: "completed", title: "完了", color: "text-slate-400" },
+    { id: "won", title: "成約", color: "text-primary-400" },
+    { id: "completed", title: "完了", color: "text-muted" },
 ];
 
 interface KanbanClient extends Client {
@@ -30,16 +30,16 @@ function DroppableColumn({ id, title, color, clients, onAddClick, onDeleteClient
     const totalValue = clients.reduce((sum, c) => sum + (c.dealValue || 0), 0);
 
     return (
-        <div ref={setNodeRef} className="bg-slate-800 rounded-xl p-4 min-h-[500px] w-72 flex-shrink-0 border border-slate-700 flex flex-col">
-            <div className="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+        <div ref={setNodeRef} className="bg-sidebar rounded-xl p-4 min-h-[500px] w-72 flex-shrink-0 border border-sidebar-hover flex flex-col">
+            <div className="flex justify-between items-center mb-4 border-b border-sidebar-hover pb-2">
                 <div>
                     <h3 className={`font-bold ${color}`}>{title}</h3>
-                    <p className="text-xs text-slate-400">¥{totalValue.toLocaleString()}</p>
+                    <p className="text-xs text-muted">¥{totalValue.toLocaleString()}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <span className="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded">{clients.length}</span>
+                    <span className="text-xs bg-sidebar-hover text-surface-300 px-2 py-1 rounded">{clients.length}</span>
                     {id === "lead" && (
-                        <button onClick={onAddClick} className="text-emerald-500 hover:text-emerald-400">
+                        <button onClick={onAddClick} className="text-primary-500 hover:text-primary-400">
                             <Plus size={18} />
                         </button>
                     )}
@@ -183,115 +183,115 @@ export default function KanbanBoardClient({ initialClients }: { initialClients: 
         <>
             {/* パイプライン統計 */}
             <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
-                    <p className="text-xs text-slate-400 mb-1">パイプライン総額</p>
-                    <p className="text-2xl font-bold text-slate-50">¥{totalPipeline.toLocaleString()}</p>
+                <div className="bg-sidebar p-4 rounded-xl border border-sidebar-hover">
+                    <p className="text-xs text-muted mb-1">パイプライン総額</p>
+                    <p className="text-2xl font-bold text-surface-50">¥{totalPipeline.toLocaleString()}</p>
                 </div>
-                <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
-                    <p className="text-xs text-slate-400 mb-1">成約済み</p>
-                    <p className="text-2xl font-bold text-emerald-500">¥{wonValue.toLocaleString()}</p>
+                <div className="bg-sidebar p-4 rounded-xl border border-sidebar-hover">
+                    <p className="text-xs text-muted mb-1">成約済み</p>
+                    <p className="text-2xl font-bold text-primary-500">¥{wonValue.toLocaleString()}</p>
                 </div>
-                <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
-                    <p className="text-xs text-slate-400 mb-1">クライアント数</p>
-                    <p className="text-2xl font-bold text-slate-50">{clients.length}</p>
+                <div className="bg-sidebar p-4 rounded-xl border border-sidebar-hover">
+                    <p className="text-xs text-muted mb-1">クライアント数</p>
+                    <p className="text-2xl font-bold text-surface-50">{clients.length}</p>
                 </div>
             </div>
 
             {/* 新規追加モーダル */}
             {isAdding && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-slate-800 rounded-xl p-6 w-[480px] border border-slate-700 max-h-[90vh] overflow-y-auto">
+                    <div className="bg-sidebar rounded-xl p-6 w-[480px] border border-sidebar-hover max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold text-slate-50">新規クライアント</h3>
-                            <button onClick={() => setIsAdding(false)} className="text-slate-400 hover:text-white">
+                            <h3 className="text-lg font-bold text-surface-50">新規クライアント</h3>
+                            <button onClick={() => setIsAdding(false)} className="text-muted hover:text-white">
                                 <X size={20} />
                             </button>
                         </div>
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm text-slate-400 mb-1">担当者名 *</label>
+                                    <label className="block text-sm text-muted mb-1">担当者名 *</label>
                                     <input
                                         type="text"
                                         value={newClient.name}
                                         onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
-                                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-50"
+                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
                                         placeholder="山田太郎"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm text-slate-400 mb-1">会社名 *</label>
+                                    <label className="block text-sm text-muted mb-1">会社名 *</label>
                                     <input
                                         type="text"
                                         value={newClient.company}
                                         onChange={(e) => setNewClient({ ...newClient, company: e.target.value })}
-                                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-50"
+                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
                                         placeholder="株式会社〇〇"
                                     />
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="flex items-center gap-2 text-sm text-slate-400 mb-1">
+                                    <label className="flex items-center gap-2 text-sm text-muted mb-1">
                                         <Mail size={12} /> メール
                                     </label>
                                     <input
                                         type="email"
                                         value={newClient.email}
                                         onChange={(e) => setNewClient({ ...newClient, email: e.target.value })}
-                                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-50"
+                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
                                         placeholder="email@example.com"
                                     />
                                 </div>
                                 <div>
-                                    <label className="flex items-center gap-2 text-sm text-slate-400 mb-1">
+                                    <label className="flex items-center gap-2 text-sm text-muted mb-1">
                                         <Phone size={12} /> 電話番号
                                     </label>
                                     <input
                                         type="tel"
                                         value={newClient.phone}
                                         onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })}
-                                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-50"
+                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
                                         placeholder="03-1234-5678"
                                     />
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm text-slate-400 mb-1">想定金額（円）</label>
+                                    <label className="block text-sm text-muted mb-1">想定金額（円）</label>
                                     <input
                                         type="number"
                                         value={newClient.dealValue}
                                         onChange={(e) => setNewClient({ ...newClient, dealValue: e.target.value })}
-                                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-50"
+                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
                                         placeholder="100000"
                                     />
                                 </div>
                                 <div>
-                                    <label className="flex items-center gap-2 text-sm text-slate-400 mb-1">
+                                    <label className="flex items-center gap-2 text-sm text-muted mb-1">
                                         <Calendar size={12} /> 次のアクション
                                     </label>
                                     <input
                                         type="text"
                                         value={newClient.nextAction}
                                         onChange={(e) => setNewClient({ ...newClient, nextAction: e.target.value })}
-                                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-50"
+                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
                                         placeholder="連絡"
                                     />
                                 </div>
                             </div>
                             <div>
-                                <label className="flex items-center gap-2 text-sm text-slate-400 mb-1">
+                                <label className="flex items-center gap-2 text-sm text-muted mb-1">
                                     <FileText size={12} /> メモ
                                 </label>
                                 <textarea
                                     value={newClient.notes}
                                     onChange={(e) => setNewClient({ ...newClient, notes: e.target.value })}
-                                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-50 h-20"
+                                    className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50 h-20"
                                     placeholder="備考・メモ"
                                 />
                             </div>
-                            <button onClick={createClient} className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-lg font-medium">
+                            <button onClick={createClient} className="w-full bg-primary-500 hover:bg-primary-600 text-white py-2 rounded-lg font-medium">
                                 追加
                             </button>
                         </div>
@@ -302,84 +302,84 @@ export default function KanbanBoardClient({ initialClients }: { initialClients: 
             {/* 編集モーダル */}
             {isEditing && editingClient && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-slate-800 rounded-xl p-6 w-[480px] border border-slate-700 max-h-[90vh] overflow-y-auto">
+                    <div className="bg-sidebar rounded-xl p-6 w-[480px] border border-sidebar-hover max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold text-slate-50">クライアント編集</h3>
-                            <button onClick={() => { setIsEditing(false); setEditingClient(null); }} className="text-slate-400 hover:text-white">
+                            <h3 className="text-lg font-bold text-surface-50">クライアント編集</h3>
+                            <button onClick={() => { setIsEditing(false); setEditingClient(null); }} className="text-muted hover:text-white">
                                 <X size={20} />
                             </button>
                         </div>
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm text-slate-400 mb-1">担当者名</label>
+                                    <label className="block text-sm text-muted mb-1">担当者名</label>
                                     <input
                                         type="text"
                                         value={editingClient.name}
                                         onChange={(e) => setEditingClient({ ...editingClient, name: e.target.value })}
-                                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-50"
+                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm text-slate-400 mb-1">会社名</label>
+                                    <label className="block text-sm text-muted mb-1">会社名</label>
                                     <input
                                         type="text"
                                         value={editingClient.company}
                                         onChange={(e) => setEditingClient({ ...editingClient, company: e.target.value })}
-                                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-50"
+                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
                                     />
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm text-slate-400 mb-1">メール</label>
+                                    <label className="block text-sm text-muted mb-1">メール</label>
                                     <input
                                         type="email"
                                         value={editingClient.email || ""}
                                         onChange={(e) => setEditingClient({ ...editingClient, email: e.target.value })}
-                                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-50"
+                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm text-slate-400 mb-1">電話番号</label>
+                                    <label className="block text-sm text-muted mb-1">電話番号</label>
                                     <input
                                         type="tel"
                                         value={editingClient.phone || ""}
                                         onChange={(e) => setEditingClient({ ...editingClient, phone: e.target.value })}
-                                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-50"
+                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
                                     />
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm text-slate-400 mb-1">想定金額（円）</label>
+                                    <label className="block text-sm text-muted mb-1">想定金額（円）</label>
                                     <input
                                         type="number"
                                         value={editingClient.dealValue || ""}
                                         onChange={(e) => setEditingClient({ ...editingClient, dealValue: e.target.value ? parseInt(e.target.value) : null })}
-                                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-50"
+                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm text-slate-400 mb-1">次のアクション</label>
+                                    <label className="block text-sm text-muted mb-1">次のアクション</label>
                                     <input
                                         type="text"
                                         value={editingClient.nextAction || ""}
                                         onChange={(e) => setEditingClient({ ...editingClient, nextAction: e.target.value })}
-                                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-50"
+                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
                                     />
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm text-slate-400 mb-1">メモ</label>
+                                <label className="block text-sm text-muted mb-1">メモ</label>
                                 <textarea
                                     value={editingClient.notes || ""}
                                     onChange={(e) => setEditingClient({ ...editingClient, notes: e.target.value })}
-                                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-50 h-20"
+                                    className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50 h-20"
                                 />
                             </div>
                             <div className="flex gap-2">
-                                <button onClick={updateClient} className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-lg font-medium">
+                                <button onClick={updateClient} className="flex-1 bg-primary-500 hover:bg-primary-600 text-white py-2 rounded-lg font-medium">
                                     保存
                                 </button>
                                 <button

@@ -13,19 +13,19 @@ export default function ContentManager() {
   const [view, setView] = useState<'table' | 'calendar'>('table');
 
   return (
-    <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
-       <div className="p-4 border-b border-slate-700 flex justify-between items-center">
-           <h3 className="font-bold text-slate-50">Content Schedule</h3>
-           <div className="flex bg-slate-900 rounded-lg p-1">
+    <div className="bg-sidebar rounded-xl border border-sidebar-hover overflow-hidden">
+       <div className="p-4 border-b border-sidebar-hover flex justify-between items-center">
+           <h3 className="font-bold text-surface-50">Content Schedule</h3>
+           <div className="flex bg-foreground rounded-lg p-1">
                <button 
                   onClick={() => setView('table')}
-                  className={`p-2 rounded-md transition-colors ${view === 'table' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white'}`}
+                  className={`p-2 rounded-md transition-colors ${view === 'table' ? 'bg-sidebar-hover text-white' : 'text-muted hover:text-white'}`}
                >
                    <List size={18} />
                </button>
                <button 
                   onClick={() => setView('calendar')}
-                  className={`p-2 rounded-md transition-colors ${view === 'calendar' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white'}`}
+                  className={`p-2 rounded-md transition-colors ${view === 'calendar' ? 'bg-sidebar-hover text-white' : 'text-muted hover:text-white'}`}
                >
                    <CalendarIcon size={18} />
                </button>
@@ -34,7 +34,7 @@ export default function ContentManager() {
        
        {view === 'table' ? (
            <table className="w-full text-left">
-             <thead className="bg-slate-900/50 text-slate-400 text-sm">
+             <thead className="bg-foreground/50 text-muted text-sm">
                <tr>
                  <th className="p-4 font-medium">Title</th>
                  <th className="p-4 font-medium">Platform</th>
@@ -44,23 +44,23 @@ export default function ContentManager() {
                  <th className="p-4 font-medium"></th>
                </tr>
              </thead>
-             <tbody className="divide-y divide-slate-700">
+             <tbody className="divide-y divide-sidebar-hover">
                {contentData.map((item) => (
-                 <tr key={item.id} className="hover:bg-slate-700/30 transition-colors">
-                   <td className="p-4 font-medium text-slate-50">{item.title}</td>
-                   <td className="p-4 text-slate-400">{item.platform}</td>
+                 <tr key={item.id} className="hover:bg-sidebar-hover/30 transition-colors">
+                   <td className="p-4 font-medium text-surface-50">{item.title}</td>
+                   <td className="p-4 text-muted">{item.platform}</td>
                    <td className="p-4">
                      <span className={`px-2 py-1 rounded text-xs font-medium 
-                        ${item.status === 'Published' ? 'bg-emerald-500/10 text-emerald-500' : 
+                        ${item.status === 'Published' ? 'bg-primary-500/10 text-primary-500' : 
                           item.status === 'Review' ? 'bg-yellow-500/10 text-yellow-500' : 
-                          'bg-slate-500/10 text-slate-500'}`}>
+                          'bg-surface-500/10 text-surface-500'}`}>
                         {item.status}
                      </span>
                    </td>
-                   <td className="p-4 text-slate-400">{item.date}</td>
-                   <td className="p-4 text-right text-slate-400">{item.views > 0 ? `${item.views} views` : '-'}</td>
+                   <td className="p-4 text-muted">{item.date}</td>
+                   <td className="p-4 text-right text-muted">{item.views > 0 ? `${item.views} views` : '-'}</td>
                    <td className="p-4 text-right">
-                        <button className="p-2 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white">
+                        <button className="p-2 hover:bg-sidebar-hover rounded-lg text-muted hover:text-white">
                             <Edit size={16} />
                         </button>
                    </td>
@@ -69,7 +69,7 @@ export default function ContentManager() {
              </tbody>
            </table>
        ) : (
-           <div className="p-12 text-center text-slate-500 h-96 flex flex-col items-center justify-center">
+           <div className="p-12 text-center text-surface-500 h-96 flex flex-col items-center justify-center">
                <CalendarIcon size={48} className="mb-4 opacity-50" />
                <p>Calendar View Placeholder</p>
                <p className="text-sm mt-2">Interact with calendar API to see scheduled posts.</p>

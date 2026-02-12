@@ -114,14 +114,14 @@ export default function ToolsTab({ agentId }: ToolsTabProps) {
     if (loading) {
         return (
             <div className="flex items-center justify-center py-12">
-                <Loader2 className="animate-spin text-emerald-400" size={24} />
+                <Loader2 className="animate-spin text-primary-400" size={24} />
             </div>
         );
     }
 
     return (
         <div className="space-y-4">
-            <p className="text-sm text-slate-400 mb-4">
+            <p className="text-sm text-muted mb-4">
                 このエージェントが使用できるツール・プロバイダーを管理します。
             </p>
 
@@ -138,20 +138,20 @@ export default function ToolsTab({ agentId }: ToolsTabProps) {
                             className={clsx(
                                 "flex items-center justify-between p-4 rounded-xl border transition-all",
                                 isConnected
-                                    ? "bg-emerald-500/10 border-emerald-500/30"
-                                    : "bg-slate-700/50 border-slate-600"
+                                    ? "bg-primary-500/10 border-primary-500/30"
+                                    : "bg-sidebar-hover/50 border-foreground"
                             )}
                         >
                             <div className="flex items-center gap-3">
                                 <div className={clsx(
                                     "w-10 h-10 rounded-lg flex items-center justify-center",
-                                    isConnected ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-600 text-slate-300"
+                                    isConnected ? "bg-primary-500/20 text-primary-400" : "bg-foreground text-surface-300"
                                 )}>
                                     <IconComponent size={20} />
                                 </div>
                                 <div>
                                     <h4 className="font-medium text-white">{tool.name}</h4>
-                                    <p className="text-sm text-slate-400">{tool.description}</p>
+                                    <p className="text-sm text-muted">{tool.description}</p>
                                 </div>
                             </div>
 
@@ -161,8 +161,8 @@ export default function ToolsTab({ agentId }: ToolsTabProps) {
                                 className={clsx(
                                     "px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2",
                                     isConnected
-                                        ? "bg-emerald-500 text-white hover:bg-emerald-600"
-                                        : "bg-slate-600 text-white hover:bg-slate-500",
+                                        ? "bg-primary-500 text-white hover:bg-primary-600"
+                                        : "bg-foreground text-white hover:bg-surface-500",
                                     isToggling && "opacity-50 cursor-not-allowed"
                                 )}
                             >
@@ -186,7 +186,7 @@ export default function ToolsTab({ agentId }: ToolsTabProps) {
             </div>
 
             {tools.length === 0 && (
-                <div className="text-center py-8 text-slate-400">
+                <div className="text-center py-8 text-muted">
                     利用可能なツールがありません
                 </div>
             )}

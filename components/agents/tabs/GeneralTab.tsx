@@ -59,7 +59,7 @@ export default function GeneralTab({ agent }: GeneralTabProps) {
         <div className="space-y-6">
             {/* 説明 */}
             <div>
-                <h3 className="text-sm font-medium text-slate-400 mb-2">Description</h3>
+                <h3 className="text-sm font-medium text-muted mb-2">Description</h3>
                 <p className="text-white">
                     {agent.description || "このエージェントの説明はまだ設定されていません。"}
                 </p>
@@ -67,14 +67,14 @@ export default function GeneralTab({ agent }: GeneralTabProps) {
 
             {/* Key Capabilities */}
             <div>
-                <h3 className="text-sm font-medium text-slate-400 mb-3">Key Capabilities</h3>
+                <h3 className="text-sm font-medium text-muted mb-3">Key Capabilities</h3>
                 <div className="grid grid-cols-2 gap-3">
                     {capabilities.map((cap: string, index: number) => (
                         <div
                             key={index}
-                            className="flex items-center gap-2 bg-slate-700/50 rounded-lg px-3 py-2"
+                            className="flex items-center gap-2 bg-sidebar-hover/50 rounded-lg px-3 py-2"
                         >
-                            <Check size={16} className="text-emerald-400 shrink-0" />
+                            <Check size={16} className="text-primary-400 shrink-0" />
                             <span className="text-sm text-white">{cap}</span>
                         </div>
                     ))}
@@ -83,7 +83,7 @@ export default function GeneralTab({ agent }: GeneralTabProps) {
 
             {/* 推奨用途 */}
             <div>
-                <h3 className="text-sm font-medium text-slate-400 mb-2 flex items-center gap-2">
+                <h3 className="text-sm font-medium text-muted mb-2 flex items-center gap-2">
                     <Star size={16} className="text-amber-400" />
                     Recommended Uses
                 </h3>
@@ -94,15 +94,15 @@ export default function GeneralTab({ agent }: GeneralTabProps) {
 
             {/* ステータス */}
             <div>
-                <h3 className="text-sm font-medium text-slate-400 mb-2">Status</h3>
+                <h3 className="text-sm font-medium text-muted mb-2">Status</h3>
                 <div className="flex items-center gap-2">
                     <span
                         className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${agent.enabled
-                                ? "bg-emerald-500/20 text-emerald-400"
-                                : "bg-slate-700 text-slate-400"
+                                ? "bg-primary-500/20 text-primary-400"
+                                : "bg-sidebar-hover text-muted"
                             }`}
                     >
-                        <span className={`w-2 h-2 rounded-full ${agent.enabled ? "bg-emerald-400" : "bg-slate-500"}`} />
+                        <span className={`w-2 h-2 rounded-full ${agent.enabled ? "bg-primary-400" : "bg-surface-500"}`} />
                         {agent.enabled ? "Active" : "Inactive"}
                     </span>
                 </div>

@@ -8,12 +8,12 @@ const posts = [
 
 export default function SocialTable() {
   return (
-    <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
-      <div className="p-4 border-b border-slate-700">
-        <h3 className="font-bold text-slate-50">Recent Social Posts</h3>
+    <div className="bg-sidebar rounded-xl border border-sidebar-hover overflow-hidden">
+      <div className="p-4 border-b border-sidebar-hover">
+        <h3 className="font-bold text-surface-50">Recent Social Posts</h3>
       </div>
       <table className="w-full text-left">
-        <thead className="bg-slate-900/50 text-slate-400 text-sm">
+        <thead className="bg-foreground/50 text-muted text-sm">
           <tr>
             <th className="p-4 font-medium">Post Content</th>
             <th className="p-4 font-medium text-center">Likes</th>
@@ -21,21 +21,21 @@ export default function SocialTable() {
             <th className="p-4 font-medium text-center">Replies</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-700">
+        <tbody className="divide-y divide-sidebar-hover">
           {posts.map((post) => (
-            <tr key={post.id} className="hover:bg-slate-700/30 transition-colors">
-              <td className="p-4 text-slate-300 max-w-md truncate">{post.content}</td>
-              <td className="p-4 text-center text-slate-400">
+            <tr key={post.id} className="hover:bg-sidebar-hover/30 transition-colors">
+              <td className="p-4 text-surface-300 max-w-md truncate">{post.content}</td>
+              <td className="p-4 text-center text-muted">
                 <div className="flex items-center justify-center gap-1">
                   <Heart size={14} /> {post.likes}
                 </div>
               </td>
-              <td className="p-4 text-center text-slate-400">
+              <td className="p-4 text-center text-muted">
                 <div className="flex items-center justify-center gap-1">
                   <Repeat size={14} /> {post.retweets}
                 </div>
               </td>
-              <td className="p-4 text-center text-slate-400">
+              <td className="p-4 text-center text-muted">
                 <div className="flex items-center justify-center gap-1">
                   <MessageCircle size={14} /> {post.replies}
                 </div>

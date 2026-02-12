@@ -2,7 +2,6 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-    darkMode: "class",
     content: [
         "./pages/**/*.{js,ts,jsx,tsx,mdx}",
         "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -11,44 +10,45 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
-                background: "#050505", // 深い黒
-                foreground: "#ededed",
+                background: "#F5EDE3",
+                foreground: "#3E2C23",
                 primary: {
-                    50: "#ecfdf5",
-                    100: "#d1fae5",
-                    200: "#a7f3d0",
-                    300: "#6ee7b7",
-                    400: "#34d399",
-                    500: "#10b981", // Emerald 500
-                    600: "#059669",
-                    700: "#047857",
-                    800: "#065f46",
-                    900: "#064e3b",
-                    DEFAULT: "#10b981",
+                    50: "#FDF5EF",
+                    100: "#F5DCC8",
+                    200: "#E8C4A0",
+                    300: "#D4956B",
+                    400: "#C96D4A",
+                    500: "#B85C38",
+                    600: "#9A4A2D",
+                    700: "#8B3E22",
+                    800: "#6E2F1A",
+                    900: "#4A1F10",
+                    DEFAULT: "#B85C38",
                 },
                 surface: {
-                    50: "#121212",
-                    100: "#18181b",
-                    200: "#27272a",
-                    300: "#3f3f46",
-                    glass: "rgba(24, 24, 27, 0.4)", // グラスモーフィズム用
+                    50: "#FDFAF6",
+                    100: "#F0E6D8",
+                    200: "#D6C9BA",
+                    300: "#C4B5A3",
                 },
                 accent: {
-                    from: "#10b981", // Emerald
-                    to: "#3b82f6",   // Blue
-                }
+                    DEFAULT: "#5B8A72",
+                    light: "#7BA892",
+                    dark: "#3D6B4F",
+                },
+                sidebar: {
+                    DEFAULT: "#3E2C23",
+                    hover: "#553D30",
+                },
+                muted: "#8D7B6E",
             },
             fontFamily: {
-                sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+                sans: ['Noto Sans JP', 'var(--font-inter)', 'system-ui', 'sans-serif'],
             },
             backgroundImage: {
                 "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-                "conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-                "glass-gradient": "linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)",
-                "primary-gradient": "linear-gradient(to right, #10b981, #3b82f6)",
-            },
-            backdropBlur: {
-                xs: '2px',
+                "primary-gradient": "linear-gradient(135deg, #B85C38, #D4956B)",
+                "warm-gradient": "linear-gradient(135deg, #B85C38, #C96D4A)",
             },
             animation: {
                 'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -56,8 +56,8 @@ const config: Config = {
             },
             keyframes: {
                 glow: {
-                    '0%': { boxShadow: '0 0 5px #10b981' },
-                    '100%': { boxShadow: '0 0 20px #10b981, 0 0 10px #34d399' },
+                    '0%': { boxShadow: '0 0 5px #B85C38' },
+                    '100%': { boxShadow: '0 0 20px #B85C38, 0 0 10px #D4956B' },
                 }
             }
         },
@@ -65,3 +65,4 @@ const config: Config = {
     plugins: [],
 };
 export default config;
+

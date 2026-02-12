@@ -42,13 +42,13 @@ export default function RunResultsTab({ agentId }: RunResultsTabProps) {
     const getStatusIcon = (status: string) => {
         switch (status) {
             case "completed":
-                return <CheckCircle2 size={20} className="text-emerald-400" />;
+                return <CheckCircle2 size={20} className="text-primary-400" />;
             case "failed":
                 return <XCircle size={20} className="text-red-400" />;
             case "running":
                 return <Loader2 size={20} className="text-amber-400 animate-spin" />;
             default:
-                return <Clock size={20} className="text-slate-400" />;
+                return <Clock size={20} className="text-muted" />;
         }
     };
 
@@ -79,14 +79,14 @@ export default function RunResultsTab({ agentId }: RunResultsTabProps) {
     if (loading) {
         return (
             <div className="flex items-center justify-center py-12">
-                <Loader2 className="animate-spin text-emerald-400" size={24} />
+                <Loader2 className="animate-spin text-primary-400" size={24} />
             </div>
         );
     }
 
     return (
         <div className="space-y-4">
-            <p className="text-sm text-slate-400 mb-4">
+            <p className="text-sm text-muted mb-4">
                 このエージェントの過去の実行結果を確認できます。
             </p>
 
@@ -100,10 +100,10 @@ export default function RunResultsTab({ agentId }: RunResultsTabProps) {
                             className={clsx(
                                 "p-4 rounded-xl border transition-all",
                                 run.status === "completed"
-                                    ? "bg-emerald-500/5 border-emerald-500/20"
+                                    ? "bg-primary-500/5 border-primary-500/20"
                                     : run.status === "failed"
                                         ? "bg-red-500/5 border-red-500/20"
-                                        : "bg-slate-700/50 border-slate-600"
+                                        : "bg-sidebar-hover/50 border-foreground"
                             )}
                         >
                             <div className="flex items-start justify-between">
@@ -117,15 +117,15 @@ export default function RunResultsTab({ agentId }: RunResultsTabProps) {
                                             <span className={clsx(
                                                 "text-xs px-2 py-0.5 rounded-full",
                                                 run.status === "completed"
-                                                    ? "bg-emerald-500/20 text-emerald-400"
+                                                    ? "bg-primary-500/20 text-primary-400"
                                                     : run.status === "failed"
                                                         ? "bg-red-500/20 text-red-400"
-                                                        : "bg-slate-600 text-slate-300"
+                                                        : "bg-foreground text-surface-300"
                                             )}>
                                                 {getStatusLabel(run.status)}
                                             </span>
                                         </div>
-                                        <div className="flex items-center gap-4 mt-1 text-sm text-slate-400">
+                                        <div className="flex items-center gap-4 mt-1 text-sm text-muted">
                                             {run.duration !== null && (
                                                 <span>Duration: {run.duration}秒</span>
                                             )}
@@ -136,15 +136,24 @@ export default function RunResultsTab({ agentId }: RunResultsTabProps) {
                                     </div>
                                 </div>
 
-                                {reportId && (
+                                <div className="flex items-center gap-3">
+                                    {reportId && (
+                                        <Link
+                                            href={`/feed/${reportId}`}
+                                            className="flex items-center gap-1 text-sm text-primary-400 hover:text-primary-300 transition-colors"
+                                        >
+                                            See results
+                                            <ExternalLink size={14} />
+                                        </Link>
+                                    )}
                                     <Link
-                                        href={`/feed/${reportId}`}
-                                        className="flex items-center gap-1 text-sm text-emerald-400 hover:text-emerald-300 transition-colors"
+                                        href={`/agents/${agentId}/runs/${run.id}`}
+                                        className="flex items-center gap-1 text-sm text-surface-400 hover:text-primary-400 transition-colors"
                                     >
-                                        See results
+                                        詳細を見る
                                         <ExternalLink size={14} />
                                     </Link>
-                                )}
+                                </div>
                             </div>
                         </div>
                     );
@@ -152,7 +161,7 @@ export default function RunResultsTab({ agentId }: RunResultsTabProps) {
             </div>
 
             {runs.length === 0 && (
-                <div className="text-center py-8 text-slate-400">
+                <div className="text-center py-8 text-muted">
                     まだ実行履歴がありません
                 </div>
             )}

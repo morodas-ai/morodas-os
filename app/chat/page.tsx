@@ -43,7 +43,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-6rem)] flex rounded-xl border border-slate-700 overflow-hidden shadow-xl">
+    <div className="h-[calc(100vh-6rem)] flex rounded-xl border-2 border-primary-200 overflow-hidden shadow-xl bg-white">
       <ChatSidebarClient
         sessions={sessions}
         activeSessionId={activeSessionId}

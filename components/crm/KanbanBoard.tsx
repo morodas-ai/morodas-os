@@ -23,10 +23,10 @@ interface KanbanClient {
 function DroppableColumn({ id, title, clients }: { id: string, title: string, clients: KanbanClient[] }) {
   const { setNodeRef } = useDroppable({ id });
   return (
-    <div ref={setNodeRef} className="bg-slate-800 rounded-xl p-4 min-h-[600px] w-72 flex-shrink-0 border border-slate-700 flex flex-col">
-      <h3 className="font-bold text-slate-50 mb-4 capitalize border-b border-slate-700 pb-2 flex justify-between items-center">
+    <div ref={setNodeRef} className="bg-sidebar rounded-xl p-4 min-h-[600px] w-72 flex-shrink-0 border border-sidebar-hover flex flex-col">
+      <h3 className="font-bold text-surface-50 mb-4 capitalize border-b border-sidebar-hover pb-2 flex justify-between items-center">
         {title}
-        <span className="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded">{clients.length}</span>
+        <span className="text-xs bg-sidebar-hover text-surface-300 px-2 py-1 rounded">{clients.length}</span>
       </h3>
       <div className="flex-1 space-y-3">
         {clients.map(client => (

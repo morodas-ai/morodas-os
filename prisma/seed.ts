@@ -602,15 +602,6 @@ async function main() {
   // ===========================================
   const settings = await Promise.all([
     prisma.setting.upsert({
-      where: { key: "incorporation_date" },
-      update: {},
-      create: {
-        key: "incorporation_date",
-        value: "2026-04-01",
-        description: "法人設立予定日",
-      },
-    }),
-    prisma.setting.upsert({
       where: { key: "stagnation_threshold_days" },
       update: {},
       create: {
@@ -721,6 +712,75 @@ async function main() {
   ]);
 
   console.log(`✅ Created ${contents.length} contents`);
+
+  // ===========================================
+  // ナレッジページのシード
+  // ===========================================
+
+  const knowledgePages = await Promise.all([
+    prisma.knowledgePage.upsert({
+      where: { id: "kp-onboarding" },
+      update: {},
+      create: {
+        id: "kp-onboarding",
+        title: "オンボーディングガイド",
+        content: "新メンバー向けのセットアップ手順\n\n1. Slackチャンネルに参加\n2. GitHubリポジトリへのアクセス権を取得\n3. 開発環境のセットアップ\n4. MORODAS OSダッシュボードにログイン\n5. 初回ミーティングのスケジュール確認",
+        category: "operations",
+        emoji: "🚀",
+        tags: JSON.stringify(["onboarding", "setup", "新メンバー"]),
+      },
+    }),
+    prisma.knowledgePage.upsert({
+      where: { id: "kp-brand-guide" },
+      update: {},
+      create: {
+        id: "kp-brand-guide",
+        title: "ブランドガイドライン",
+        content: "ブランドアイデンティティの統一基準\n\nカラーパレット:\n- Primary: #14b8a6 (Teal)\n- Secondary: #10b981 (Emerald)\n- Background: #0f172a (Slate 950)\n\nフォント:\n- 見出し: Inter Bold\n- 本文: Inter Regular\n\nロゴ使用ルール:\n- 最小サイズ: 24px\n- 余白: ロゴサイズの50%以上",
+        category: "marketing",
+        emoji: "🎨",
+        tags: JSON.stringify(["brand", "デザイン", "ガイドライン"]),
+      },
+    }),
+    prisma.knowledgePage.upsert({
+      where: { id: "kp-api-docs" },
+      update: {},
+      create: {
+        id: "kp-api-docs",
+        title: "APIドキュメント",
+        content: "MORODAS OS REST API仕様\n\nBase URL: /api\n\nエンドポイント:\n- GET /api/agents - エージェント一覧\n- POST /api/agents - エージェント作成\n- GET /api/reports - レポート一覧\n- GET /api/dashboard - ダッシュボードデータ\n- POST /api/chat/sessions - チャットセッション作成\n\n認証: Bearer Token (将来実装)",
+        category: "technical",
+        emoji: "⚙️",
+        tags: JSON.stringify(["API", "REST", "ドキュメント"]),
+      },
+    }),
+    prisma.knowledgePage.upsert({
+      where: { id: "kp-product-roadmap" },
+      update: {},
+      create: {
+        id: "kp-product-roadmap",
+        title: "プロダクトロードマップ 2026 Q1",
+        content: "2026年第1四半期の開発計画\n\n【完了】\n✅ ダッシュボード v2\n✅ エージェント管理\n✅ レポートシステム\n\n【進行中】\n🔄 ナレッジベース\n🔄 AI統合強化\n\n【計画中】\n📋 マルチテナント対応\n📋 カスタムワークフロー\n📋 外部API連携拡張",
+        category: "product",
+        emoji: "🗺️",
+        tags: JSON.stringify(["ロードマップ", "計画", "Q1"]),
+      },
+    }),
+    prisma.knowledgePage.upsert({
+      where: { id: "kp-meeting-notes" },
+      update: {},
+      create: {
+        id: "kp-meeting-notes",
+        title: "週次定例ミーティング議事録",
+        content: "2026/02/07 定例ミーティング\n\n参加者: 全チーム\n\nアジェンダ:\n1. 先週の振り返り\n2. MORODAS OS進捗共有\n3. NoimosAI差分の確認\n4. 来週の優先事項\n\n決定事項:\n- ナレッジベース機能の優先実装\n- エージェント詳細パネルの改善\n- GlobalAIアシスタントの応答改善",
+        category: "general",
+        emoji: "📝",
+        tags: JSON.stringify(["ミーティング", "議事録", "週次"]),
+      },
+    }),
+  ]);
+
+  console.log(`✅ Created ${knowledgePages.length} knowledge pages`);
 
   console.log("✨ Seeding complete!");
 }

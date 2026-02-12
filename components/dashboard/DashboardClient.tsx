@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -10,50 +10,14 @@ import {
     Target,
     ArrowUpRight,
     Clock,
-    CheckCircle2,
-    Building2,
     X,
-    Edit2
+    Edit2,
+    Sun,
+    CheckCircle2,
 } from "lucide-react";
-
-interface Alert {
-    id: string;
-    title: string;
-    message: string;
-    type: string;
-    severity: string;
-}
-
-interface Task {
-    id: string;
-    title: string;
-    status: string;
-    priority: string;
-    estimatedMinutes: number | null;
-    agentType: string | null;
-}
-
-interface Agent {
-    id: string;
-    name: string;
-    type: string;
-    enabled: boolean;
-    lastRunAt: string | null;
-    _count: { reports: number };
-}
-
-interface Metric {
-    name: string;
-    value: number;
-    change: number | null;
-    changePercent: number | null;
-    target: number | null;
-}
-
-interface MonthlyRevenue {
-    totalRevenue: number;
-    targetRevenue: number;
-}
+import type { Alert, Task, Agent, Metric, MonthlyRevenue } from "@/types";
+import TaskItem from "./TaskItem";
+import AgentStatusCard from "./AgentStatusCard";
 
 interface DashboardClientProps {
     initialAlerts: Alert[];
@@ -61,7 +25,6 @@ interface DashboardClientProps {
     agents: Agent[];
     metricsMap: Record<string, Metric>;
     monthlyRevenue: MonthlyRevenue | null;
-    daysToIncorporation: number | null;
 }
 
 export default function DashboardClient({
@@ -70,7 +33,6 @@ export default function DashboardClient({
     agents,
     metricsMap,
     monthlyRevenue,
-    daysToIncorporation,
 }: DashboardClientProps) {
     const router = useRouter();
     const [alerts, setAlerts] = useState(initialAlerts);
@@ -78,10 +40,28 @@ export default function DashboardClient({
     const [isMetricModalOpen, setIsMetricModalOpen] = useState(false);
     const [editingMetric, setEditingMetric] = useState<string | null>(null);
     const [metricValue, setMetricValue] = useState("");
+    const [briefing, setBriefing] = useState<string | null>(null);
+    const [briefingLoading, setBriefingLoading] = useState(true);
 
     const xFollowers = metricsMap["x_followers"];
     const notePv = metricsMap["note_weekly_pv"];
     const stagnantCount = alerts.filter((a) => a.type === "stagnation").length;
+
+    // 毎朝ブリーフィングを取得
+    useEffect(() => {
+        async function fetchBriefing() {
+            try {
+                const res = await fetch("/api/dashboard/briefing");
+                const data = await res.json();
+                setBriefing(data.briefing || null);
+            } catch {
+                setBriefing(null);
+            } finally {
+                setBriefingLoading(false);
+            }
+        }
+        fetchBriefing();
+    }, []);
 
     // アラートを非表示
     const dismissAlert = async (alertId: string) => {
@@ -187,20 +167,41 @@ export default function DashboardClient({
                 </div>
             )}
 
+            {/* ☀️ 毎朝ブリーフィング */}
+            <div className="card p-6 mb-6 border-l-4 border-amber-400 bg-gradient-to-r from-amber-50 to-orange-50">
+                <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-amber-100 flex-center">
+                        <Sun className="text-amber-600" size={20} />
+                    </div>
+                    <h3 className="font-bold text-lg text-foreground">今日のブリーフィング</h3>
+                </div>
+                {briefingLoading ? (
+                    <div className="space-y-2 animate-pulse">
+                        <div className="h-4 bg-amber-200/50 rounded w-full" />
+                        <div className="h-4 bg-amber-200/50 rounded w-5/6" />
+                        <div className="h-4 bg-amber-200/50 rounded w-4/6" />
+                    </div>
+                ) : briefing ? (
+                    <p className="text-sidebar-hover leading-relaxed whitespace-pre-line">{briefing}</p>
+                ) : (
+                    <p className="text-surface-500">ブリーフィングを生成できませんでした。</p>
+                )}
+            </div>
+
             {/* KPIカード */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {/* 収益トラッキング */}
-                <div className="card p-6 border-l-4 border-emerald-500 cursor-pointer hover:shadow-lg transition-shadow">
+                <div className="card p-6 border-l-4 border-primary-500 cursor-pointer hover:shadow-lg transition-shadow">
                     <div className="flex items-center justify-between mb-4">
-                        <div className="w-10 h-10 rounded-lg bg-emerald-100 flex-center">
-                            <DollarSign className="text-emerald-600" size={20} />
+                        <div className="w-10 h-10 rounded-lg bg-primary-100 flex-center">
+                            <DollarSign className="text-primary-600" size={20} />
                         </div>
-                        <span className="text-xs font-semibold text-emerald-600 bg-emerald-100 px-2 py-1 rounded-full">
+                        <span className="text-xs font-semibold text-primary-600 bg-primary-100 px-2 py-1 rounded-full">
                             {new Date().getFullYear()}年{new Date().getMonth() + 1}月
                         </span>
                     </div>
                     <p className="text-sm text-muted mb-1">今月の収益</p>
-                    <p className="text-3xl font-bold text-slate-900">
+                    <p className="text-3xl font-bold text-foreground">
                         ¥{(monthlyRevenue?.totalRevenue || 0).toLocaleString()}
                     </p>
                     <div className="mt-3">
@@ -208,9 +209,9 @@ export default function DashboardClient({
                             <span>目標: ¥{(monthlyRevenue?.targetRevenue || 1000000).toLocaleString()}</span>
                             <span>{Math.round(((monthlyRevenue?.totalRevenue || 0) / (monthlyRevenue?.targetRevenue || 1000000)) * 100)}%</span>
                         </div>
-                        <div className="w-full bg-slate-200 rounded-full h-2">
+                        <div className="w-full bg-surface-200 rounded-full h-2">
                             <div
-                                className="bg-emerald-500 h-2 rounded-full"
+                                className="bg-primary-500 h-2 rounded-full"
                                 style={{ width: `${Math.min(100, ((monthlyRevenue?.totalRevenue || 0) / (monthlyRevenue?.targetRevenue || 1000000)) * 100)}%` }}
                             />
                         </div>
@@ -237,7 +238,7 @@ export default function DashboardClient({
                                 type="number"
                                 value={metricValue}
                                 onChange={(e) => setMetricValue(e.target.value)}
-                                className="border border-slate-300 rounded-lg px-3 py-2 mb-4"
+                                className="border border-surface-300 rounded-lg px-3 py-2 mb-4"
                                 placeholder="現在のフォロワー数"
                                 onClick={(e) => e.stopPropagation()}
                             />
@@ -259,11 +260,11 @@ export default function DashboardClient({
                                     <ArrowUpRight size={12} /> +{xFollowers.change}
                                 </span>
                             )}
-                            <Edit2 size={14} className="text-slate-400" />
+                            <Edit2 size={14} className="text-muted" />
                         </div>
                     </div>
                     <p className="text-sm text-muted mb-1">Xフォロワー</p>
-                    <p className="text-3xl font-bold text-slate-900">{xFollowers?.value || 0}</p>
+                    <p className="text-3xl font-bold text-foreground">{xFollowers?.value || 0}</p>
                     <p className="text-xs text-muted mt-2">目標: {xFollowers?.target?.toLocaleString() || "10,000"}</p>
                 </div>
 
@@ -287,7 +288,7 @@ export default function DashboardClient({
                                 type="number"
                                 value={metricValue}
                                 onChange={(e) => setMetricValue(e.target.value)}
-                                className="border border-slate-300 rounded-lg px-3 py-2 mb-4"
+                                className="border border-surface-300 rounded-lg px-3 py-2 mb-4"
                                 placeholder="今週のPV"
                                 onClick={(e) => e.stopPropagation()}
                             />
@@ -309,28 +310,32 @@ export default function DashboardClient({
                                     <ArrowUpRight size={12} /> +{notePv.changePercent.toFixed(0)}%
                                 </span>
                             )}
-                            <Edit2 size={14} className="text-slate-400" />
+                            <Edit2 size={14} className="text-muted" />
                         </div>
                     </div>
                     <p className="text-sm text-muted mb-1">Note 週間PV</p>
-                    <p className="text-3xl font-bold text-slate-900">{notePv?.value || 0}</p>
+                    <p className="text-3xl font-bold text-foreground">{notePv?.value || 0}</p>
                     <p className="text-xs text-muted mt-2">先週: {(notePv?.value || 0) - (notePv?.change || 0)}</p>
                 </div>
 
-                {/* 法人化カウントダウン */}
-                <div className="card p-6 border-l-4 border-orange-500">
+                {/* 停滞タスク */}
+                <div className="card p-6 border-l-4 border-red-500">
                     <div className="flex items-center justify-between mb-4">
-                        <div className="w-10 h-10 rounded-lg bg-orange-100 flex-center">
-                            <Building2 className="text-orange-600" size={20} />
+                        <div className={`w-10 h-10 rounded-lg ${stagnantCount > 0 ? "bg-red-100" : "bg-green-100"} flex-center`}>
+                            {stagnantCount > 0 ? (
+                                <AlertTriangle className="text-red-600" size={20} />
+                            ) : (
+                                <CheckCircle2 className="text-green-600" size={20} />
+                            )}
                         </div>
-                        <span className="text-xs font-semibold text-orange-600 bg-orange-100 px-2 py-1 rounded-full">
-                            2026年4月
-                        </span>
                     </div>
-                    <p className="text-sm text-muted mb-1">法人設立まで</p>
-                    <p className="text-3xl font-bold text-slate-900">{daysToIncorporation || "--"}日</p>
-                    <p className="text-xs text-muted mt-2">次のタスク: 定款作成</p>
+                    <p className="text-sm text-muted mb-1">停滞タスク</p>
+                    <p className={`text-3xl font-bold ${stagnantCount > 0 ? "text-red-600" : "text-green-600"}`}>
+                        {stagnantCount > 0 ? `${stagnantCount}件` : "✅ なし"}
+                    </p>
+                    <p className="text-xs text-muted mt-2">2日以上更新なしで検知</p>
                 </div>
+
             </div>
 
             {/* 2カラムレイアウト */}
@@ -338,10 +343,10 @@ export default function DashboardClient({
                 {/* 今日の優先タスク */}
                 <div className="card p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2">
+                        <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
                             今日の優先タスク
                         </h3>
-                        <Link href="/tasks" className="text-sm text-emerald-600 hover:text-emerald-700">
+                        <Link href="/tasks" className="text-sm text-primary-600 hover:text-primary-700">
                             すべて見る →
                         </Link>
                     </div>
@@ -350,7 +355,6 @@ export default function DashboardClient({
                         {tasks.filter((t) => t.status !== "done").map((task) => (
                             <TaskItem
                                 key={task.id}
-                                id={task.id}
                                 priority={task.priority as "high" | "medium" | "low"}
                                 title={task.title}
                                 time={task.estimatedMinutes ? `${task.estimatedMinutes}分` : "--"}
@@ -361,13 +365,13 @@ export default function DashboardClient({
                             />
                         ))}
                         {tasks.filter((t) => t.status !== "done").length === 0 && (
-                            <p className="text-slate-500 text-sm py-4 text-center">タスクがありません 🎉</p>
+                            <p className="text-surface-500 text-sm py-4 text-center">タスクがありません 🎉</p>
                         )}
                     </div>
 
                     {tasks.length > 0 && (
-                        <div className="mt-4 pt-4 border-t border-slate-100 text-sm text-muted">
-                            推定作業時間: <span className="font-semibold text-slate-700">
+                        <div className="mt-4 pt-4 border-t border-surface-100 text-sm text-muted">
+                            推定作業時間: <span className="font-semibold text-sidebar-hover">
                                 {tasks.filter((t) => t.status !== "done").reduce((acc, t) => acc + (t.estimatedMinutes || 0), 0)}分
                             </span>
                         </div>
@@ -377,20 +381,20 @@ export default function DashboardClient({
                 {/* エージェント稼働状況 */}
                 <div className="card p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-bold text-lg text-slate-900">エージェント稼働状況</h3>
-                        <Link href="/agents" className="text-sm text-emerald-600 hover:text-emerald-700">
+                        <h3 className="font-bold text-lg text-foreground">エージェント稼働状況</h3>
+                        <Link href="/agents" className="text-sm text-primary-600 hover:text-primary-700">
                             管理画面 →
                         </Link>
                     </div>
 
                     <div className="space-y-3">
                         {agents.map((agent) => (
-                            <AgentStatus
+                            <AgentStatusCard
                                 key={agent.id}
                                 name={agent.name}
                                 lastRun={agent.lastRunAt ? new Date(agent.lastRunAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" }) : "--"}
                                 status={agent.enabled ? "active" : "stopped"}
-                                outputs={agent._count.reports}
+                                outputs={agent._count?.reports || 0}
                             />
                         ))}
                     </div>
@@ -400,58 +404,3 @@ export default function DashboardClient({
     );
 }
 
-function TaskItem({ id, priority, title, time, agent, status, onStart, onComplete }: {
-    id: string;
-    priority: "high" | "medium" | "low";
-    title: string;
-    time: string;
-    agent: string;
-    status: "pending" | "in_progress" | "done";
-    onStart: () => void;
-    onComplete: () => void;
-}) {
-    const priorityColor = priority === "high" ? "bg-red-500" : priority === "medium" ? "bg-yellow-500" : "bg-green-500";
-
-    return (
-        <div className={`flex items-center gap-4 p-3 rounded-lg ${status === "done" ? "bg-slate-50" : "bg-white border border-slate-200 hover:border-emerald-300"} transition-colors`}>
-            <div className={`w-2 h-2 rounded-full ${status === "done" ? "bg-slate-300" : priorityColor}`} />
-            <div className="flex-1">
-                <p className={`font-medium ${status === "done" ? "text-slate-400 line-through" : "text-slate-800"}`}>
-                    {title}
-                </p>
-                <p className="text-xs text-muted flex items-center gap-2">
-                    <span>{time}</span>
-                    <span>•</span>
-                    <span>{agent}</span>
-                </p>
-            </div>
-            {status === "done" ? (
-                <CheckCircle2 size={20} className="text-emerald-500" />
-            ) : status === "in_progress" ? (
-                <button onClick={onComplete} className="btn-primary text-sm py-1.5 px-3 bg-emerald-600">完了</button>
-            ) : (
-                <button onClick={onStart} className="btn-primary text-sm py-1.5 px-3">開始</button>
-            )}
-        </div>
-    );
-}
-
-function AgentStatus({ name, lastRun, status, outputs }: {
-    name: string;
-    lastRun: string;
-    status: "active" | "stopped";
-    outputs: number;
-}) {
-    return (
-        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors">
-            <div className="flex items-center gap-3">
-                <div className={`w-2 h-2 rounded-full ${status === "active" ? "bg-emerald-500" : "bg-slate-300"}`} />
-                <span className="font-medium text-slate-700">{name}</span>
-            </div>
-            <div className="flex items-center gap-4 text-sm text-muted">
-                <span>最終実行: {lastRun}</span>
-                <span className="bg-slate-200 px-2 py-0.5 rounded text-xs">{outputs}件</span>
-            </div>
-        </div>
-    );
-}

@@ -1,87 +1,83 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { createGitHubIssue, buildJulesIssueBody, isGitHubConfigured } from "@/lib/github";
 
-// GET: タスク一覧を取得
-export async function GET(request: Request) {
+const JULES_AGENT_ID = "jules-gh-executor";
+
+// GET: タスク一覧取得
+export async function GET() {
     try {
-        const { searchParams } = new URL(request.url);
-        const status = searchParams.get("status");
-
-        const where: Record<string, unknown> = {};
-        if (status && status !== "all") {
-            where.status = status;
-        }
-
         const tasks = await prisma.task.findMany({
-            where,
             include: {
-                report: { select: { id: true, title: true } },
+                agent: true,
             },
-            orderBy: [{ priority: "asc" }, { createdAt: "desc" }],
+            orderBy: [
+                { priority: "asc" },
+                { createdAt: "desc" },
+            ],
         });
-
-        return NextResponse.json({ success: true, data: tasks });
+        return NextResponse.json({ data: tasks });
     } catch (error) {
-        console.error("Error fetching tasks:", error);
-        return NextResponse.json(
-            { success: false, error: { code: "INTERNAL_ERROR", message: "Failed to fetch tasks" } },
-            { status: 500 }
-        );
+        console.error("Failed to fetch tasks:", error);
+        return NextResponse.json({ error: "Failed to fetch tasks" }, { status: 500 });
     }
 }
 
-// POST: 新しいタスクを作成
-export async function POST(request: Request) {
+// POST: タスク作成（Jules割り当て時はGitHub Issueも自動作成）
+export async function POST(req: Request) {
     try {
-        const body = await request.json();
+        const body = await req.json();
+        const { title, description, priority, estimatedMinutes, agentId, agentType } = body;
+
+        // タスクをDBに保存
         const task = await prisma.task.create({
             data: {
-                title: body.title,
-                description: body.description,
-                priority: body.priority || "medium",
-                estimatedMinutes: body.estimatedMinutes,
-                dueDate: body.dueDate ? new Date(body.dueDate) : undefined,
-                agentType: body.agentType,
-                reportId: body.reportId,
+                title,
+                description,
+                priority: priority || "medium",
+                estimatedMinutes: estimatedMinutes ? parseInt(estimatedMinutes) : null,
+                agentId: agentId || null,
+                agentType: agentType || null,
             },
         });
-        return NextResponse.json({ success: true, data: task }, { status: 201 });
-    } catch (error) {
-        console.error("Error creating task:", error);
-        return NextResponse.json(
-            { success: false, error: { code: "INTERNAL_ERROR", message: "Failed to create task" } },
-            { status: 500 }
-        );
-    }
-}
 
-// PATCH: タスクを更新
-export async function PATCH(request: Request) {
-    try {
-        const body = await request.json();
-        const { id, status, priority, title, description } = body;
+        // Julesに割り当てられた場合 → GitHub Issueを自動作成
+        let githubIssue = null;
+        if (agentId === JULES_AGENT_ID && isGitHubConfigured()) {
+            try {
+                githubIssue = await createGitHubIssue({
+                    title: `[Jules] ${title}`,
+                    body: buildJulesIssueBody({ title, description, priority }),
+                    labels: [priority || "medium"],
+                });
 
-        if (!id) {
-            return NextResponse.json(
-                { success: false, error: { code: "VALIDATION_ERROR", message: "id is required" } },
-                { status: 400 }
-            );
+                if (githubIssue) {
+                    // Issue情報をタスクに紐付け
+                    await prisma.task.update({
+                        where: { id: task.id },
+                        data: {
+                            githubIssueNumber: githubIssue.number,
+                            githubIssueUrl: githubIssue.html_url,
+                            status: "in_progress",
+                        },
+                    });
+                }
+            } catch (githubError) {
+                console.error("[Jules] GitHub Issue creation failed:", githubError);
+                // GitHub連携が失敗してもタスク自体は作成成功として返す
+            }
         }
 
-        const updateData: Record<string, unknown> = {};
-        if (status) updateData.status = status;
-        if (priority) updateData.priority = priority;
-        if (title) updateData.title = title;
-        if (description !== undefined) updateData.description = description;
-        if (status) updateData.lastActivityAt = new Date();
-
-        const task = await prisma.task.update({ where: { id }, data: updateData });
-        return NextResponse.json({ success: true, data: task });
+        return NextResponse.json({
+            data: { ...task, githubIssue },
+            message: githubIssue
+                ? `タスク作成完了。GitHub Issue #${githubIssue.number} をJulesに送信しました。`
+                : agentId === JULES_AGENT_ID && !isGitHubConfigured()
+                    ? "タスク作成完了。GITHUB_TOKENが未設定のため、手動でJulesに割り当ててください。"
+                    : "タスク作成完了。",
+        });
     } catch (error) {
-        console.error("Error updating task:", error);
-        return NextResponse.json(
-            { success: false, error: { code: "INTERNAL_ERROR", message: "Failed to update task" } },
-            { status: 500 }
-        );
+        console.error("Failed to create task:", error);
+        return NextResponse.json({ error: "Failed to create task" }, { status: 500 });
     }
 }
