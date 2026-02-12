@@ -53,3 +53,4 @@ vps_key*
 recover_key*
 *.key
 gcp-service-account.json
+docs/knowledge-base/
