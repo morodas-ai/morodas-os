@@ -67,7 +67,7 @@ export async function GET() {
 
         // 2. 直近の実行履歴を取得
         const execRes = await fetch(
-            `${N8N_BASE_URL}/api/v1/executions?limit=100&status=error,success,running`,
+            `${N8N_BASE_URL}/api/v1/executions?limit=100`,
             {
                 headers: { "X-N8N-API-KEY": N8N_API_KEY },
                 next: { revalidate: 30 },
