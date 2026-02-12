@@ -63,98 +63,98 @@ export default function TaskForm({ isOpen, onClose, onSave, initialData, agents 
 
     return (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-            <div className="bg-sidebar rounded-xl w-full max-w-md shadow-2xl border border-sidebar-hover">
-                <div className="flex items-center justify-between p-4 border-b border-sidebar-hover">
-                    <h2 className="font-bold text-lg text-surface-100">
-                        {initialData ? "Edit Task" : "New Task"}
+            <div className="bg-white rounded-xl w-full max-w-md shadow-2xl border border-primary-200">
+                <div className="flex items-center justify-between p-4 border-b border-primary-200">
+                    <h2 className="font-bold text-lg text-foreground">
+                        {initialData ? "タスク編集" : "新規タスク"}
                     </h2>
-                    <button onClick={onClose} className="text-muted hover:text-white">
+                    <button onClick={onClose} className="text-muted hover:text-foreground">
                         <X size={20} />
                     </button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-4 space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-muted mb-1">Title</label>
+                        <label className="block text-sm font-medium text-muted mb-1">タイトル</label>
                         <input
                             type="text"
                             required
                             value={formData.title}
                             onChange={e => setFormData({ ...formData, title: e.target.value })}
-                            className="w-full bg-foreground border border-sidebar-hover rounded-lg px-3 py-2 text-surface-100 focus:outline-none focus:border-primary-500"
-                            placeholder="What needs to be done?"
+                            className="w-full bg-primary-50 border border-primary-200 rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-primary-500"
+                            placeholder="何をする必要がありますか？"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-muted mb-1">Description</label>
+                        <label className="block text-sm font-medium text-muted mb-1">説明</label>
                         <textarea
                             value={formData.description}
                             onChange={e => setFormData({ ...formData, description: e.target.value })}
-                            className="w-full bg-foreground border border-sidebar-hover rounded-lg px-3 py-2 text-surface-100 h-24 focus:outline-none focus:border-primary-500"
-                            placeholder="Details..."
+                            className="w-full bg-primary-50 border border-primary-200 rounded-lg px-3 py-2 text-foreground h-24 focus:outline-none focus:border-primary-500"
+                            placeholder="詳細..."
                         />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-muted mb-1">Priority</label>
+                            <label className="block text-sm font-medium text-muted mb-1">優先度</label>
                             <select
                                 value={formData.priority}
                                 onChange={e => setFormData({ ...formData, priority: e.target.value })}
-                                className="w-full bg-foreground border border-sidebar-hover rounded-lg px-3 py-2 text-surface-100 focus:outline-none focus:border-primary-500"
+                                className="w-full bg-primary-50 border border-primary-200 rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-primary-500"
                             >
-                                <option value="low">Low</option>
-                                <option value="medium">Medium</option>
-                                <option value="high">High</option>
+                                <option value="low">低</option>
+                                <option value="medium">中</option>
+                                <option value="high">高</option>
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-muted mb-1">Est. Minutes</label>
+                            <label className="block text-sm font-medium text-muted mb-1">見積（分）</label>
                             <input
                                 type="number"
                                 value={formData.estimatedMinutes}
                                 onChange={e => setFormData({ ...formData, estimatedMinutes: e.target.value })}
-                                className="w-full bg-foreground border border-sidebar-hover rounded-lg px-3 py-2 text-surface-100 focus:outline-none focus:border-primary-500"
+                                className="w-full bg-primary-50 border border-primary-200 rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-primary-500"
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-muted mb-1">Assign to Agent</label>
+                        <label className="block text-sm font-medium text-muted mb-1">エージェント割当</label>
                         <div className="relative">
                             <select
                                 value={formData.agentId}
                                 onChange={e => setFormData({ ...formData, agentId: e.target.value })}
-                                className="w-full bg-foreground border border-sidebar-hover rounded-lg px-3 py-2 text-surface-100 focus:outline-none focus:border-primary-500 appearance-none"
+                                className="w-full bg-primary-50 border border-primary-200 rounded-lg px-3 py-2 text-foreground focus:outline-none focus:border-primary-500 appearance-none"
                             >
-                                <option value="">-- No Agent --</option>
+                                <option value="">-- なし --</option>
                                 {agents.map(agent => (
                                     <option key={agent.id} value={agent.id}>
                                         {agent.name} ({agent.type})
                                     </option>
                                 ))}
                             </select>
-                            <Bot className="absolute right-3 top-2.5 text-surface-500 pointer-events-none" size={16} />
+                            <Bot className="absolute right-3 top-2.5 text-muted pointer-events-none" size={16} />
                         </div>
-                        {formData.agentId === "jules-gh-executor" && ( // ID hardcoded check for visual cue
-                            <p className="text-xs text-purple-400 mt-1 flex items-center gap-1">
+                        {formData.agentId === "jules-gh-executor" && (
+                            <p className="text-xs text-purple-500 mt-1 flex items-center gap-1">
                                 <Bot size={12} />
-                                Assigning to Jules will trigger GitHub workflow.
+                                Julesに割り当てるとGitHubワークフローがトリガーされます。
                             </p>
                         )}
                     </div>
 
                     <div className="pt-2 flex justify-end gap-2 text-sm font-medium">
-                        <button type="button" onClick={onClose} className="px-4 py-2 hover:bg-sidebar-hover rounded-lg text-surface-300">
-                            Cancel
+                        <button type="button" onClick={onClose} className="px-4 py-2 hover:bg-primary-50 rounded-lg text-muted">
+                            キャンセル
                         </button>
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="px-4 py-2 bg-primary-500 hover:bg-primary-400 text-foreground rounded-lg"
+                            className="px-4 py-2 bg-primary-500 hover:bg-primary-400 text-white rounded-lg"
                         >
-                            {isSubmitting ? "Saving..." : "Save Task"}
+                            {isSubmitting ? "保存中..." : "保存"}
                         </button>
                     </div>
                 </form>

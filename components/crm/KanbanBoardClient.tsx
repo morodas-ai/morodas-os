@@ -6,10 +6,10 @@ import ClientCard, { Client } from "./ClientCard";
 import { Plus, X, Mail, Phone, Calendar, FileText } from "lucide-react";
 
 const STAGES = [
-    { id: "lead", title: "リード", color: "text-blue-400" },
-    { id: "negotiating", title: "商談中", color: "text-yellow-400" },
-    { id: "proposed", title: "提案済", color: "text-purple-400" },
-    { id: "won", title: "成約", color: "text-primary-400" },
+    { id: "lead", title: "リード", color: "text-blue-600" },
+    { id: "negotiating", title: "商談中", color: "text-yellow-600" },
+    { id: "proposed", title: "提案済", color: "text-purple-600" },
+    { id: "won", title: "成約", color: "text-primary-500" },
     { id: "completed", title: "完了", color: "text-muted" },
 ];
 
@@ -30,14 +30,14 @@ function DroppableColumn({ id, title, color, clients, onAddClick, onDeleteClient
     const totalValue = clients.reduce((sum, c) => sum + (c.dealValue || 0), 0);
 
     return (
-        <div ref={setNodeRef} className="bg-sidebar rounded-xl p-4 min-h-[500px] w-72 flex-shrink-0 border border-sidebar-hover flex flex-col">
-            <div className="flex justify-between items-center mb-4 border-b border-sidebar-hover pb-2">
+        <div ref={setNodeRef} className="bg-surface-50 rounded-xl p-4 min-h-[500px] w-72 flex-shrink-0 border border-primary-200 flex flex-col">
+            <div className="flex justify-between items-center mb-4 border-b border-primary-200 pb-2">
                 <div>
                     <h3 className={`font-bold ${color}`}>{title}</h3>
                     <p className="text-xs text-muted">¥{totalValue.toLocaleString()}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <span className="text-xs bg-sidebar-hover text-surface-300 px-2 py-1 rounded">{clients.length}</span>
+                    <span className="text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded">{clients.length}</span>
                     {id === "lead" && (
                         <button onClick={onAddClick} className="text-primary-500 hover:text-primary-400">
                             <Plus size={18} />
@@ -183,27 +183,27 @@ export default function KanbanBoardClient({ initialClients }: { initialClients: 
         <>
             {/* パイプライン統計 */}
             <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="bg-sidebar p-4 rounded-xl border border-sidebar-hover">
+                <div className="bg-white p-4 rounded-xl border border-primary-200">
                     <p className="text-xs text-muted mb-1">パイプライン総額</p>
-                    <p className="text-2xl font-bold text-surface-50">¥{totalPipeline.toLocaleString()}</p>
+                    <p className="text-2xl font-bold text-foreground">¥{totalPipeline.toLocaleString()}</p>
                 </div>
-                <div className="bg-sidebar p-4 rounded-xl border border-sidebar-hover">
+                <div className="bg-white p-4 rounded-xl border border-primary-200">
                     <p className="text-xs text-muted mb-1">成約済み</p>
                     <p className="text-2xl font-bold text-primary-500">¥{wonValue.toLocaleString()}</p>
                 </div>
-                <div className="bg-sidebar p-4 rounded-xl border border-sidebar-hover">
+                <div className="bg-white p-4 rounded-xl border border-primary-200">
                     <p className="text-xs text-muted mb-1">クライアント数</p>
-                    <p className="text-2xl font-bold text-surface-50">{clients.length}</p>
+                    <p className="text-2xl font-bold text-foreground">{clients.length}</p>
                 </div>
             </div>
 
             {/* 新規追加モーダル */}
             {isAdding && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-sidebar rounded-xl p-6 w-[480px] border border-sidebar-hover max-h-[90vh] overflow-y-auto">
+                    <div className="bg-white rounded-xl p-6 w-[480px] border border-primary-200 max-h-[90vh] overflow-y-auto shadow-2xl">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold text-surface-50">新規クライアント</h3>
-                            <button onClick={() => setIsAdding(false)} className="text-muted hover:text-white">
+                            <h3 className="text-lg font-bold text-foreground">新規クライアント</h3>
+                            <button onClick={() => setIsAdding(false)} className="text-muted hover:text-foreground">
                                 <X size={20} />
                             </button>
                         </div>
@@ -215,7 +215,7 @@ export default function KanbanBoardClient({ initialClients }: { initialClients: 
                                         type="text"
                                         value={newClient.name}
                                         onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
-                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
+                                        className="w-full bg-primary-50 border border-primary-200 rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary-500"
                                         placeholder="山田太郎"
                                     />
                                 </div>
@@ -225,7 +225,7 @@ export default function KanbanBoardClient({ initialClients }: { initialClients: 
                                         type="text"
                                         value={newClient.company}
                                         onChange={(e) => setNewClient({ ...newClient, company: e.target.value })}
-                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
+                                        className="w-full bg-primary-50 border border-primary-200 rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary-500"
                                         placeholder="株式会社〇〇"
                                     />
                                 </div>
@@ -239,7 +239,7 @@ export default function KanbanBoardClient({ initialClients }: { initialClients: 
                                         type="email"
                                         value={newClient.email}
                                         onChange={(e) => setNewClient({ ...newClient, email: e.target.value })}
-                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
+                                        className="w-full bg-primary-50 border border-primary-200 rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary-500"
                                         placeholder="email@example.com"
                                     />
                                 </div>
@@ -251,7 +251,7 @@ export default function KanbanBoardClient({ initialClients }: { initialClients: 
                                         type="tel"
                                         value={newClient.phone}
                                         onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })}
-                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
+                                        className="w-full bg-primary-50 border border-primary-200 rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary-500"
                                         placeholder="03-1234-5678"
                                     />
                                 </div>
@@ -263,7 +263,7 @@ export default function KanbanBoardClient({ initialClients }: { initialClients: 
                                         type="number"
                                         value={newClient.dealValue}
                                         onChange={(e) => setNewClient({ ...newClient, dealValue: e.target.value })}
-                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
+                                        className="w-full bg-primary-50 border border-primary-200 rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary-500"
                                         placeholder="100000"
                                     />
                                 </div>
@@ -275,7 +275,7 @@ export default function KanbanBoardClient({ initialClients }: { initialClients: 
                                         type="text"
                                         value={newClient.nextAction}
                                         onChange={(e) => setNewClient({ ...newClient, nextAction: e.target.value })}
-                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
+                                        className="w-full bg-primary-50 border border-primary-200 rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary-500"
                                         placeholder="連絡"
                                     />
                                 </div>
@@ -287,7 +287,7 @@ export default function KanbanBoardClient({ initialClients }: { initialClients: 
                                 <textarea
                                     value={newClient.notes}
                                     onChange={(e) => setNewClient({ ...newClient, notes: e.target.value })}
-                                    className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50 h-20"
+                                    className="w-full bg-primary-50 border border-primary-200 rounded-lg px-4 py-2 text-foreground h-20 focus:outline-none focus:border-primary-500"
                                     placeholder="備考・メモ"
                                 />
                             </div>
@@ -302,10 +302,10 @@ export default function KanbanBoardClient({ initialClients }: { initialClients: 
             {/* 編集モーダル */}
             {isEditing && editingClient && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-sidebar rounded-xl p-6 w-[480px] border border-sidebar-hover max-h-[90vh] overflow-y-auto">
+                    <div className="bg-white rounded-xl p-6 w-[480px] border border-primary-200 max-h-[90vh] overflow-y-auto shadow-2xl">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold text-surface-50">クライアント編集</h3>
-                            <button onClick={() => { setIsEditing(false); setEditingClient(null); }} className="text-muted hover:text-white">
+                            <h3 className="text-lg font-bold text-foreground">クライアント編集</h3>
+                            <button onClick={() => { setIsEditing(false); setEditingClient(null); }} className="text-muted hover:text-foreground">
                                 <X size={20} />
                             </button>
                         </div>
@@ -317,7 +317,7 @@ export default function KanbanBoardClient({ initialClients }: { initialClients: 
                                         type="text"
                                         value={editingClient.name}
                                         onChange={(e) => setEditingClient({ ...editingClient, name: e.target.value })}
-                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
+                                        className="w-full bg-primary-50 border border-primary-200 rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary-500"
                                     />
                                 </div>
                                 <div>
@@ -326,7 +326,7 @@ export default function KanbanBoardClient({ initialClients }: { initialClients: 
                                         type="text"
                                         value={editingClient.company}
                                         onChange={(e) => setEditingClient({ ...editingClient, company: e.target.value })}
-                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
+                                        className="w-full bg-primary-50 border border-primary-200 rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary-500"
                                     />
                                 </div>
                             </div>
@@ -337,7 +337,7 @@ export default function KanbanBoardClient({ initialClients }: { initialClients: 
                                         type="email"
                                         value={editingClient.email || ""}
                                         onChange={(e) => setEditingClient({ ...editingClient, email: e.target.value })}
-                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
+                                        className="w-full bg-primary-50 border border-primary-200 rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary-500"
                                     />
                                 </div>
                                 <div>
@@ -346,7 +346,7 @@ export default function KanbanBoardClient({ initialClients }: { initialClients: 
                                         type="tel"
                                         value={editingClient.phone || ""}
                                         onChange={(e) => setEditingClient({ ...editingClient, phone: e.target.value })}
-                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
+                                        className="w-full bg-primary-50 border border-primary-200 rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary-500"
                                     />
                                 </div>
                             </div>
@@ -357,7 +357,7 @@ export default function KanbanBoardClient({ initialClients }: { initialClients: 
                                         type="number"
                                         value={editingClient.dealValue || ""}
                                         onChange={(e) => setEditingClient({ ...editingClient, dealValue: e.target.value ? parseInt(e.target.value) : null })}
-                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
+                                        className="w-full bg-primary-50 border border-primary-200 rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary-500"
                                     />
                                 </div>
                                 <div>
@@ -366,7 +366,7 @@ export default function KanbanBoardClient({ initialClients }: { initialClients: 
                                         type="text"
                                         value={editingClient.nextAction || ""}
                                         onChange={(e) => setEditingClient({ ...editingClient, nextAction: e.target.value })}
-                                        className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50"
+                                        className="w-full bg-primary-50 border border-primary-200 rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-primary-500"
                                     />
                                 </div>
                             </div>
@@ -375,7 +375,7 @@ export default function KanbanBoardClient({ initialClients }: { initialClients: 
                                 <textarea
                                     value={editingClient.notes || ""}
                                     onChange={(e) => setEditingClient({ ...editingClient, notes: e.target.value })}
-                                    className="w-full bg-foreground border border-sidebar-hover rounded-lg px-4 py-2 text-surface-50 h-20"
+                                    className="w-full bg-primary-50 border border-primary-200 rounded-lg px-4 py-2 text-foreground h-20 focus:outline-none focus:border-primary-500"
                                 />
                             </div>
                             <div className="flex gap-2">

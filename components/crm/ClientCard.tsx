@@ -56,7 +56,7 @@ export default function ClientCard({ client, draggable, onDelete, onEdit }: Clie
 
   const CardContent = (
     <div
-      className={`bg-sidebar-hover p-4 rounded-lg border border-foreground shadow-sm ${draggable ? "hover:border-primary-500/50 cursor-grab active:cursor-grabbing" : ""} group relative`}
+      className={`bg-white p-4 rounded-lg border border-primary-200 shadow-sm ${draggable ? "hover:border-primary-400 cursor-grab active:cursor-grabbing" : ""} group relative`}
       onClick={() => setShowDetail(true)}
     >
       {/* アクションボタン（ホバー時に表示） */}
@@ -64,15 +64,15 @@ export default function ClientCard({ client, draggable, onDelete, onEdit }: Clie
         <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={handleEdit}
-            className="p-1 bg-foreground hover:bg-surface-500 rounded text-surface-300 hover:text-white"
+            className="p-1 bg-primary-50 hover:bg-primary-100 rounded text-muted hover:text-foreground"
           >
             <Edit2 size={12} />
           </button>
           <button
             onClick={handleDelete}
             className={`p-1 rounded transition-colors ${confirmDelete
-                ? "bg-red-500 text-white"
-                : "bg-foreground hover:bg-red-500 text-surface-300 hover:text-white"
+              ? "bg-red-500 text-white"
+              : "bg-primary-50 hover:bg-red-500 text-muted hover:text-white"
               }`}
           >
             <Trash2 size={12} />
@@ -80,15 +80,15 @@ export default function ClientCard({ client, draggable, onDelete, onEdit }: Clie
         </div>
       )}
 
-      <h4 className="font-bold text-surface-50 text-sm mb-2 pr-14">{client.company}</h4>
+      <h4 className="font-bold text-foreground text-sm mb-2 pr-14">{client.company}</h4>
       <div className="flex items-center gap-2 text-xs text-muted mb-3">
         <User size={12} /> <span>{client.name}</span>
       </div>
-      <div className="flex items-center justify-between mt-2 pt-2 border-t border-foreground/50">
+      <div className="flex items-center justify-between mt-2 pt-2 border-t border-primary-100">
         <div className="flex items-center gap-1 text-xs font-medium text-primary-500">
           <DollarSign size={12} /> ¥{(client.dealValue || 0).toLocaleString()}
         </div>
-        <span className="text-[10px] bg-sidebar px-2 py-0.5 rounded text-muted">
+        <span className="text-[10px] bg-primary-50 px-2 py-0.5 rounded text-muted">
           {client.nextAction || "次: 連絡"}
         </span>
       </div>
@@ -98,49 +98,49 @@ export default function ClientCard({ client, draggable, onDelete, onEdit }: Clie
   // 詳細モーダル
   const DetailModal = showDetail && (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowDetail(false)}>
-      <div className="bg-sidebar rounded-xl p-6 w-96 border border-sidebar-hover" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-xl p-6 w-96 border border-primary-200 shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-bold text-surface-50">{client.company}</h3>
-          <button onClick={() => setShowDetail(false)} className="text-muted hover:text-white">
+          <h3 className="text-lg font-bold text-foreground">{client.company}</h3>
+          <button onClick={() => setShowDetail(false)} className="text-muted hover:text-foreground">
             <X size={20} />
           </button>
         </div>
 
         <div className="space-y-3">
-          <div className="flex items-center gap-3 text-surface-300">
-            <User size={16} className="text-surface-500" />
+          <div className="flex items-center gap-3 text-foreground">
+            <User size={16} className="text-muted" />
             <span>{client.name}</span>
           </div>
 
           {client.email && (
-            <div className="flex items-center gap-3 text-surface-300">
-              <Mail size={16} className="text-surface-500" />
+            <div className="flex items-center gap-3 text-foreground">
+              <Mail size={16} className="text-muted" />
               <span>{client.email}</span>
             </div>
           )}
 
           {client.phone && (
-            <div className="flex items-center gap-3 text-surface-300">
-              <Phone size={16} className="text-surface-500" />
+            <div className="flex items-center gap-3 text-foreground">
+              <Phone size={16} className="text-muted" />
               <span>{client.phone}</span>
             </div>
           )}
 
           {client.dueDate && (
-            <div className="flex items-center gap-3 text-surface-300">
-              <Calendar size={16} className="text-surface-500" />
+            <div className="flex items-center gap-3 text-foreground">
+              <Calendar size={16} className="text-muted" />
               <span>{new Date(client.dueDate).toLocaleDateString("ja-JP")}</span>
             </div>
           )}
 
-          <div className="pt-3 mt-3 border-t border-sidebar-hover">
+          <div className="pt-3 mt-3 border-t border-primary-200">
             <div className="text-3xl font-bold text-primary-500">
               ¥{(client.dealValue || 0).toLocaleString()}
             </div>
           </div>
 
           {client.notes && (
-            <div className="pt-3 mt-3 border-t border-sidebar-hover">
+            <div className="pt-3 mt-3 border-t border-primary-200">
               <p className="text-sm text-muted">{client.notes}</p>
             </div>
           )}

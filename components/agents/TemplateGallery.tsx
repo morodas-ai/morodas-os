@@ -58,17 +58,17 @@ export default function TemplateGallery() {
 
     return (
         <div className="relative group/gallery">
-            {/* Scroll Controls (Visible on Hover essentially, but kept simple here) */}
+            {/* Scroll Controls */}
             <button
                 onClick={() => scroll("left")}
-                className="absolute left-0 top-1/2 -translate-y-1/2 -ml-4 z-10 p-2 bg-sidebar/80 backdrop-blur-sm border border-sidebar-hover rounded-full text-surface-300 hover:text-white hover:bg-primary-600/80 transition-all opacity-0 group-hover/gallery:opacity-100 shadow-lg"
+                className="absolute left-0 top-1/2 -translate-y-1/2 -ml-4 z-10 p-2 bg-white/80 backdrop-blur-sm border border-primary-200 rounded-full text-muted hover:text-foreground hover:bg-primary-50 transition-all opacity-0 group-hover/gallery:opacity-100 shadow-lg"
             >
                 <ChevronLeft size={24} />
             </button>
 
             <button
                 onClick={() => scroll("right")}
-                className="absolute right-0 top-1/2 -translate-y-1/2 -mr-4 z-10 p-2 bg-sidebar/80 backdrop-blur-sm border border-sidebar-hover rounded-full text-surface-300 hover:text-white hover:bg-primary-600/80 transition-all opacity-0 group-hover/gallery:opacity-100 shadow-lg"
+                className="absolute right-0 top-1/2 -translate-y-1/2 -mr-4 z-10 p-2 bg-white/80 backdrop-blur-sm border border-primary-200 rounded-full text-muted hover:text-foreground hover:bg-primary-50 transition-all opacity-0 group-hover/gallery:opacity-100 shadow-lg"
             >
                 <ChevronRight size={24} />
             </button>

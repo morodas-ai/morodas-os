@@ -105,20 +105,20 @@ export default function TaskManager() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-surface-100">Task Manager</h1>
-                    <p className="text-muted">Manage tasks and assign missions to Agents.</p>
+                    <h1 className="text-2xl font-bold text-foreground">タスク管理</h1>
+                    <p className="text-muted">タスクを管理し、エージェントにミッションを割り当てる</p>
                 </div>
                 <button
                     onClick={() => { setEditingTask(null); setIsFormOpen(true); }}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-400 text-foreground font-bold rounded-lg transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-400 text-white font-bold rounded-lg transition-colors"
                 >
                     <Plus size={18} />
-                    New Task
+                    新規タスク
                 </button>
             </div>
 
             {loading ? (
-                <div className="text-center py-20 text-surface-500">Loading tasks...</div>
+                <div className="text-center py-20 text-muted">タスクを読み込み中...</div>
             ) : (
                 <div className="grid gap-4">
                     {tasks.map(task => (
@@ -146,25 +146,25 @@ export default function TaskManager() {
             {/* 削除確認モーダル */}
             {deleteConfirmId && (
                 <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-                    <div className="bg-sidebar rounded-xl w-full max-w-sm shadow-2xl border border-sidebar-hover p-6 space-y-4">
+                    <div className="bg-white rounded-xl w-full max-w-sm shadow-2xl border border-primary-200 p-6 space-y-4">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
                                 <AlertTriangle className="text-red-400" size={20} />
                             </div>
                             <div>
-                                <h3 className="font-bold text-surface-100">タスクを削除</h3>
+                                <h3 className="font-bold text-foreground">タスクを削除</h3>
                                 <p className="text-sm text-muted">この操作は取り消せません。</p>
                             </div>
                         </div>
                         {taskToDelete && (
-                            <p className="text-surface-300 bg-foreground/50 rounded-lg p-3 text-sm">
+                            <p className="text-foreground bg-primary-50 rounded-lg p-3 text-sm">
                                 「{taskToDelete.title}」を削除しますか？
                             </p>
                         )}
                         <div className="flex justify-end gap-3">
                             <button
                                 onClick={() => setDeleteConfirmId(null)}
-                                className="px-4 py-2 text-sm text-surface-300 hover:bg-sidebar-hover rounded-lg transition-colors"
+                                className="px-4 py-2 text-sm text-muted hover:bg-primary-50 rounded-lg transition-colors"
                             >
                                 キャンセル
                             </button>

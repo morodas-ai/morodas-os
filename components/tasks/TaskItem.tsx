@@ -36,8 +36,8 @@ export default function TaskItem({ task, onEdit, onStatusChange, onDelete }: Tas
     return (
         <div className={clsx(
             "p-4 rounded-xl border transition-all hover:shadow-md flex items-start gap-4 group",
-            isDone ? "bg-foreground/50 border-sidebar opacity-60" : "bg-sidebar border-sidebar-hover",
-            isJules && !isDone && "border-l-4 border-l-purple-500 bg-purple-900/10"
+            isDone ? "bg-primary-50/50 border-primary-100 opacity-60" : "bg-white border-primary-200",
+            isJules && !isDone && "border-l-4 border-l-purple-500 bg-purple-50/30"
         )}>
             <button
                 onClick={() => onStatusChange(task.id, isDone ? "pending" : "done")}
@@ -49,7 +49,7 @@ export default function TaskItem({ task, onEdit, onStatusChange, onDelete }: Tas
             <div className="flex-1 space-y-1">
                 <div className="flex items-start justify-between gap-4">
                     <div>
-                        <h3 className={clsx("font-medium text-lg leading-tight", isDone ? "text-surface-500 line-through" : "text-surface-100")}>
+                        <h3 className={clsx("font-medium text-lg leading-tight", isDone ? "text-muted line-through" : "text-foreground")}>
                             {task.title}
                         </h3>
                         {task.description && (
@@ -58,8 +58,8 @@ export default function TaskItem({ task, onEdit, onStatusChange, onDelete }: Tas
                     </div>
 
                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => onEdit(task)} className="p-1 hover:bg-sidebar-hover rounded text-muted">Edit</button>
-                        <button onClick={() => onDelete(task.id)} className="p-1 hover:bg-red-900/30 rounded text-red-400">Delete</button>
+                        <button onClick={() => onEdit(task)} className="p-1 hover:bg-primary-50 rounded text-muted">編集</button>
+                        <button onClick={() => onDelete(task.id)} className="p-1 hover:bg-red-50 rounded text-red-400">削除</button>
                     </div>
                 </div>
 
@@ -79,15 +79,15 @@ export default function TaskItem({ task, onEdit, onStatusChange, onDelete }: Tas
                     {task.agent ? (
                         <div className={clsx(
                             "flex items-center gap-1.5 px-2 py-0.5 rounded-full font-medium",
-                            isJules ? "bg-purple-500/20 text-purple-300" : "bg-sidebar-hover text-surface-300"
+                            isJules ? "bg-purple-100 text-purple-600" : "bg-primary-100 text-primary-700"
                         )}>
                             {isJules ? <Bot size={12} /> : <User size={12} />}
                             <span>{task.agent.name}</span>
                         </div>
                     ) : (
-                        <div className="flex items-center gap-1 text-surface-500">
+                        <div className="flex items-center gap-1 text-muted">
                             <User size={12} />
-                            <span>Unassigned</span>
+                            <span>未割当</span>
                         </div>
                     )}
 
@@ -97,7 +97,7 @@ export default function TaskItem({ task, onEdit, onStatusChange, onDelete }: Tas
                             href={task.githubIssueUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1 text-purple-400 hover:text-purple-300 transition-colors"
+                            className="flex items-center gap-1 text-purple-500 hover:text-purple-400 transition-colors"
                         >
                             <ExternalLink size={12} />
                             <span>Issue #{task.githubIssueNumber}</span>
