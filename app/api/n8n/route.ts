@@ -20,6 +20,7 @@ interface WorkflowStatus {
     id: string;
     name: string;
     category: string;
+    active: boolean;
     lastExecution: {
         status: "success" | "error" | "running" | "waiting" | "canceled";
         startedAt: string;
@@ -101,6 +102,7 @@ export async function GET() {
                 id: wf.id,
                 name: wf.name,
                 category: categorizeWorkflow(wf.name),
+                active: wf.active ?? false,
                 lastExecution: lastExec
                     ? {
                         status: lastExec.status,

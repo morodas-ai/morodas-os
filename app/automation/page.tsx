@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, X, Zap, Loader2 } from "lucide-react";
+import { Plus, X, Zap, Loader2, Workflow } from "lucide-react";
 import TemplateGallery from "@/components/agents/TemplateGallery";
 import AgentListTable from "@/components/agents/AgentListTable";
 import AgentFilters from "@/components/agents/AgentFilters";
 import AgentCreationModal from "@/components/agents/AgentCreationModal";
 import AgentDetailPanel from "@/components/agents/AgentDetailPanel";
+import N8nWorkflowPanel from "@/components/automation/N8nWorkflowPanel";
 import type { Agent } from "@/types";
 
 export default function AutomationPage() {
@@ -103,6 +104,20 @@ export default function AutomationPage() {
                         onSelectAgent={(agent) => setSelectedAgent(agent)}
                     />
                 )}
+            </div>
+
+            {/* n8n Workflows Section */}
+            <div style={{ marginTop: 40 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid var(--border)", paddingBottom: 16, marginBottom: 20 }}>
+                    <div>
+                        <h2 style={{ fontSize: 20, fontWeight: 700, color: "var(--text)", display: "flex", alignItems: "center", gap: 8 }}>
+                            <Workflow size={20} style={{ color: "var(--primary)" }} />
+                            n8n ワークフロー
+                        </h2>
+                        <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>n8nワークフローの状態管理と手動実行</p>
+                    </div>
+                </div>
+                <N8nWorkflowPanel />
             </div>
 
             {/* Agent Detail Panel (slide-out) */}
