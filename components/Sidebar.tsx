@@ -5,12 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Radio,
   MessageSquare,
   Briefcase,
-  FileText,
+  PenTool,
   Settings,
-  Bot,
+  Zap,
   ChevronRight,
   Brain,
   Sparkles,
@@ -20,15 +19,14 @@ import {
 import GlobalAIAssistant from "./GlobalAIAssistant";
 
 const navItems = [
-  { href: "/feed", label: "フィード", icon: Radio },
-  { href: "/agents", label: "エージェント", icon: Bot },
   { href: "/dashboard", label: "ダッシュボード", icon: LayoutDashboard },
+  { href: "/content-studio", label: "コンテンツスタジオ", icon: PenTool },
+  { href: "/automation", label: "自動化", icon: Zap },
+  { href: "/clients", label: "クライアント", icon: Briefcase },
   { href: "/tasks", label: "タスク", icon: CheckSquare },
   { href: "/chat", label: "チャット", icon: MessageSquare },
   { href: "/slide-forge", label: "スライド生成", icon: Layers },
-  { href: "/clients", label: "クライアント", icon: Briefcase },
-  { href: "/content", label: "コンテンツ", icon: FileText },
-  { href: "/knowledge", label: "ナレッジベース", icon: Brain },
+  { href: "/knowledge", label: "ナレッジ", icon: Brain },
   { href: "/settings", label: "設定", icon: Settings },
 ];
 
