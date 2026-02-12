@@ -4,6 +4,8 @@ import { ArrowLeft } from "lucide-react";
 import AgentEditorClient from "@/components/agents/AgentEditorClient";
 import AgentDetailPanel from "@/components/agents/AgentDetailPanel";
 
+export const dynamic = "force-dynamic";
+
 export default async function AgentEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const agent = await prisma.agent.findUnique({

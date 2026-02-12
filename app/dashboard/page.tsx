@@ -2,6 +2,8 @@ import prisma from "@/lib/prisma";
 import DashboardClient from "@/components/dashboard/DashboardClient";
 import { checkStagnation } from "@/lib/monitor";
 
+export const dynamic = "force-dynamic";
+
 async function getDashboardData() {
   // 停滞チェックを実行（最新の状態に更新）
   await checkStagnation();

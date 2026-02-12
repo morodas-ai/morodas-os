@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import ReportDetailClient from "@/components/feed/ReportDetailClient";
 
+export const dynamic = "force-dynamic";
+
 async function getReport(id: string) {
   return await prisma.report.findUnique({
     where: { id },

@@ -1,6 +1,8 @@
 import prisma from "@/lib/prisma";
 import FeedClient from "@/components/feed/FeedClient";
 
+export const dynamic = "force-dynamic";
+
 async function getReports() {
   const reports = await prisma.report.findMany({
     include: {
