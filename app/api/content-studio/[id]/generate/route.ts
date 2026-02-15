@@ -39,11 +39,20 @@ export async function POST(
 
         // 3. trigger-article.sh 互換のペイロードを組み立て
         //    + MORODAS専用のコールバックURLを追加
+        // keywords: DB上はJSON配列文字列 '["AI","エージェント"]' → カンマ区切りに変換
+        let keywordsCSV = "";
+        try {
+            const parsed = JSON.parse(idea.keywords || "[]");
+            keywordsCSV = Array.isArray(parsed) ? parsed.join(", ") : String(idea.keywords || "");
+        } catch {
+            keywordsCSV = idea.keywords || "";
+        }
+
         const payload = {
             // --- trigger-article.sh 互換フィールド ---
             theme: idea.title,
             angle: idea.angle || "",
-            keywords: idea.keywords || "",
+            target_keywords: keywordsCSV,
             cta: "none",
             tone: "informative",
             wordCount: 4000,
@@ -51,7 +60,7 @@ export async function POST(
             source: "morodas-os",
 
             // --- MORODAS追加フィールド ---
-            contentIdeaId: id,
+            ideaId: id,
             callbackUrl: `${MORODAS_CALLBACK_BASE}/api/content-studio/${id}/callback`,
         };
 

@@ -37,6 +37,7 @@ const statusFlow: Record<string, { label: string; badgeClass: string }> = {
     publishing: { label: "公開中…", badgeClass: "badge-processing" },
     published: { label: "公開済み ✨", badgeClass: "badge-done" },
     rejected: { label: "不採用", badgeClass: "badge-alert" },
+    error: { label: "❌ エラー", badgeClass: "badge-alert" },
 };
 
 function getStatus(status: string) {
@@ -123,6 +124,7 @@ export default function ContentStudioPage() {
         draft: items.filter((i) => i.status === "draft").length,
         published: items.filter((i) => i.status === "published").length,
         generating: items.filter((i) => ["generating", "publishing"].includes(i.status)).length,
+        error: items.filter((i) => i.status === "error").length,
     };
 
     return (
@@ -162,6 +164,7 @@ export default function ContentStudioPage() {
                     { label: "レビュー待ち", value: stats.draft, color: "var(--primary)" },
                     { label: "処理中", value: stats.generating, color: "var(--color-processing-text)" },
                     { label: "公開済み", value: stats.published, color: "var(--success)" },
+                    ...(stats.error > 0 ? [{ label: "エラー", value: stats.error, color: "var(--alert)" }] : []),
                 ].map((s) => (
                     <div key={s.label} className="card" style={{ padding: 16, textAlign: "center" }}>
                         <p style={{ fontSize: 28, fontWeight: 700, color: s.color }}>{s.value}</p>
@@ -177,6 +180,7 @@ export default function ContentStudioPage() {
                     { key: "generating", label: "生成中" },
                     { key: "draft", label: "レビュー待ち" },
                     { key: "published", label: "公開済み" },
+                    ...(stats.error > 0 ? [{ key: "error", label: "❌ エラー" }] : []),
                 ].map((f) => (
                     <button
                         key={f.key}
@@ -261,6 +265,12 @@ export default function ContentStudioPage() {
                                             <a href={item.wpPostUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ padding: "8px 14px", fontSize: 13, display: "flex", alignItems: "center", gap: 6, borderRadius: 8, textDecoration: "none", color: "var(--success)" }}>
                                                 <Globe size={14} /> 記事を見る
                                             </a>
+                                        )}
+                                        {item.status === "error" && (
+                                            <button className="btn btn-primary" style={{ padding: "8px 16px", fontSize: 13 }} onClick={() => triggerRegenerate(item.id)} disabled={isActing}>
+                                                {isActing ? <Loader2 size={14} className="animate-spin" /> : <RotateCcw size={14} />}
+                                                再試行
+                                            </button>
                                         )}
                                     </div>
                                 </div>

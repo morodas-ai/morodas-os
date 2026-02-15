@@ -29,6 +29,14 @@ export async function POST(
             );
         }
 
+        // 二重実行防止
+        if (idea.status === "generating" || idea.status === "publishing") {
+            return NextResponse.json(
+                { error: `現在${idea.status === "generating" ? "生成" : "公開"}中です。完了をお待ちください。` },
+                { status: 409 }
+            );
+        }
+
         // ステータスを「publishing」に更新
         await prisma.contentIdea.update({
             where: { id },
@@ -56,7 +64,10 @@ export async function POST(
             console.error("n8n publisher webhook failed:", err);
             prisma.contentIdea.update({
                 where: { id },
-                data: { status: "draft" },
+                data: {
+                    status: "error",
+                    articleMeta: JSON.stringify({ error: `n8n公開エラー: ${err.message}` }),
+                },
             }).catch(() => { });
         });
 
