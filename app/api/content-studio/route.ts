@@ -2,8 +2,21 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 // GET: コンテンツ一覧（ContentIdea）
+// 副作用: 10分以上 generating/publishing のまま放置されたアイテムを自動で error に遷移
 export async function GET() {
     try {
+        // Stuck detection: 10分以上 generating/publishing のまま → error に自動遷移
+        const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+        await prisma.contentIdea.updateMany({
+            where: {
+                status: { in: ["generating", "publishing"] },
+                updatedAt: { lt: tenMinutesAgo },
+            },
+            data: {
+                status: "error",
+            },
+        });
+
         const items = await prisma.contentIdea.findMany({
             orderBy: { createdAt: "desc" },
             take: 50,
