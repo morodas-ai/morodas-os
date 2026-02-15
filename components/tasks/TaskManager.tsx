@@ -110,7 +110,8 @@ export default function TaskManager() {
                 </div>
                 <button
                     onClick={() => { setEditingTask(null); setIsFormOpen(true); }}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-400 text-white font-bold rounded-lg transition-colors"
+                    className="btn-primary flex items-center gap-2 px-4 py-2 font-bold rounded-lg"
+                    style={{ background: 'linear-gradient(135deg, #B85C38, #D4956B)', color: 'white' }}
                 >
                     <Plus size={18} />
                     新規タスク

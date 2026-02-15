@@ -47,7 +47,8 @@ export default function ChatSidebarClient({
             <div className="p-4 border-b border-gray-200">
                 <button
                     onClick={onNewChat}
-                    className="w-full bg-primary-500 hover:bg-primary-600 text-white rounded-lg py-2 flex items-center justify-center gap-2 transition-colors"
+                    className="btn-primary w-full rounded-lg py-2.5 flex items-center justify-center gap-2"
+                    style={{ background: 'linear-gradient(135deg, #B85C38, #D4956B)', color: 'white' }}
                 >
                     <Plus size={16} />
                     新規チャット
