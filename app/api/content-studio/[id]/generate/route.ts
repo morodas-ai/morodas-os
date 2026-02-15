@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 // n8n Article Generator Webhook URL（trigger-article.shと同じエンドポイント）
-const N8N_ARTICLE_WEBHOOK = process.env.N8N_ARTICLE_WEBHOOK_URL
-    || "http://133.18.124.53:5678/webhook/article-generator";
+const N8N_ARTICLE_WEBHOOK = process.env.N8N_ARTICLE_GENERATOR_WEBHOOK
+    || "http://133.18.124.53:5678/webhook/morodas-article-generator";
 
 const MORODAS_CALLBACK_BASE = process.env.NEXT_PUBLIC_APP_URL
     || "http://133.18.124.53:3000";
@@ -21,6 +21,14 @@ export async function POST(
         const idea = await prisma.contentIdea.findUnique({ where: { id } });
         if (!idea) {
             return NextResponse.json({ error: "Not found" }, { status: 404 });
+        }
+
+        // 1.5 二重実行防止
+        if (idea.status === "generating" || idea.status === "publishing") {
+            return NextResponse.json(
+                { error: `現在${idea.status === "generating" ? "生成" : "公開"}中です。完了をお待ちください。` },
+                { status: 409 }
+            );
         }
 
         // 2. ステータスを「generating」に更新
@@ -54,10 +62,13 @@ export async function POST(
             body: JSON.stringify(payload),
         }).catch((err) => {
             console.error("n8n webhook trigger failed:", err);
-            // Webhookが失敗してもUIは返す。ステータスをerrorに戻す
+            // Webhookが失敗した場合はステータスをerrorに設定
             prisma.contentIdea.update({
                 where: { id },
-                data: { status: "candidate" },
+                data: {
+                    status: "error",
+                    articleMeta: JSON.stringify({ error: `n8n接続エラー: ${err.message}` }),
+                },
             }).catch(() => { });
         });
 

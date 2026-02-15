@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-// n8n Publisher Webhook URL
-const N8N_PUBLISHER_WEBHOOK = process.env.N8N_PUBLISHER_WEBHOOK_URL
-    || "http://133.18.124.53:5678/webhook/publisher";
+// n8n Full Publisher Webhook URL (WordPress + 起承転結画像 + X投稿 + Discord通知)
+const N8N_PUBLISHER_WEBHOOK = process.env.N8N_PUBLISHER_WEBHOOK
+    || "http://133.18.124.53:5678/webhook/morodas-full-publish";
 
 const MORODAS_CALLBACK_BASE = process.env.NEXT_PUBLIC_APP_URL
     || "http://133.18.124.53:3000";
