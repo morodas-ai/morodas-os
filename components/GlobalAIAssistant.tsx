@@ -145,7 +145,12 @@ export default function GlobalAIAssistant({ isOpen, onClose }: GlobalAIAssistant
         return (
             <button
                 onClick={() => setIsMinimized(false)}
-                className="fixed bottom-6 right-6 z-[90] w-14 h-14 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-2xl shadow-primary-500/30 flex items-center justify-center hover:scale-110 transition-transform"
+                className="fixed bottom-6 right-6 z-[90] w-14 h-14 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+                style={{
+                    background: "linear-gradient(135deg, var(--color-primary-500), var(--color-primary-600))",
+                    color: "#FFFFFF",
+                    boxShadow: "0 8px 24px rgba(184, 92, 56, 0.35)",
+                }}
             >
                 <Bot size={24} />
                 {messages.length > 1 && (
@@ -158,36 +163,57 @@ export default function GlobalAIAssistant({ isOpen, onClose }: GlobalAIAssistant
     }
 
     return (
-        <div className="fixed bottom-6 right-6 z-[90] w-[400px] max-h-[600px] flex flex-col bg-foreground border border-sidebar-hover/80 rounded-2xl shadow-2xl shadow-black/40 overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-300">
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-primary-600 to-primary-600 border-b border-primary-500/30">
+        <div
+            className="fixed bottom-6 right-6 z-[90] w-[400px] max-h-[600px] flex flex-col rounded-2xl overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-300"
+            style={{
+                backgroundColor: "var(--color-surface-50)",
+                border: "2px solid var(--color-surface-200)",
+                boxShadow: "0 25px 50px rgba(0,0,0,0.25)",
+            }}
+        >
+            {/* Header — solid gradient, no transparency */}
+            <div
+                className="flex items-center justify-between px-4 py-3"
+                style={{
+                    background: "linear-gradient(135deg, var(--color-primary-700), var(--color-primary-500))",
+                    borderBottom: "2px solid var(--color-primary-800)",
+                }}
+            >
                 <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <div
+                        className="w-8 h-8 rounded-lg flex items-center justify-center"
+                        style={{ backgroundColor: "var(--color-primary-800)" }}
+                    >
                         <Sparkles size={16} className="text-white" />
                     </div>
                     <div>
                         <h3 className="text-sm font-bold text-white">Ask MORODAS</h3>
-                        <p className="text-[10px] text-teal-100/80">AIがお答えします。お気軽にどうぞ。</p>
+                        <p className="text-[10px]" style={{ color: "#FFE0CC" }}>AIがお答えします。お気軽にどうぞ。</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-1">
                     <button
                         onClick={() => setIsMinimized(true)}
-                        className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                        className="p-1.5 rounded-lg transition-colors"
+                        style={{ color: "#FFD6C0" }}
                     >
                         <Minimize2 size={14} />
                     </button>
                     <button
                         onClick={onClose}
-                        className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                        className="p-1.5 rounded-lg transition-colors"
+                        style={{ color: "#FFD6C0" }}
                     >
                         <X size={14} />
                     </button>
                 </div>
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[250px] max-h-[350px]">
+            {/* Messages — solid background */}
+            <div
+                className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[250px] max-h-[350px]"
+                style={{ backgroundColor: "var(--color-surface-50)" }}
+            >
                 {messages.map((msg) => (
                     <div
                         key={msg.id}
@@ -197,12 +223,21 @@ export default function GlobalAIAssistant({ isOpen, onClose }: GlobalAIAssistant
                         )}
                     >
                         <div
-                            className={clsx(
-                                "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
+                            className="max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed"
+                            style={
                                 msg.role === "user"
-                                    ? "bg-primary-500 text-white rounded-br-md"
-                                    : "bg-sidebar text-surface-200 rounded-bl-md border border-sidebar-hover/50"
-                            )}
+                                    ? {
+                                        backgroundColor: "var(--color-primary-500)",
+                                        color: "#FFFFFF",
+                                        borderBottomRightRadius: "6px",
+                                    }
+                                    : {
+                                        backgroundColor: "var(--color-surface-100)",
+                                        color: "var(--color-foreground)",
+                                        border: "1px solid var(--color-surface-200)",
+                                        borderBottomLeftRadius: "6px",
+                                    }
+                            }
                         >
                             {msg.content.split("\n").map((line, i) => (
                                 <p key={i} className={i > 0 ? "mt-1.5" : ""}>
@@ -215,17 +250,24 @@ export default function GlobalAIAssistant({ isOpen, onClose }: GlobalAIAssistant
 
                 {isLoading && (
                     <div className="flex justify-start">
-                        <div className="bg-sidebar border border-sidebar-hover/50 rounded-2xl rounded-bl-md px-4 py-3">
+                        <div
+                            className="rounded-2xl px-4 py-3"
+                            style={{
+                                backgroundColor: "var(--color-surface-100)",
+                                border: "1px solid var(--color-surface-200)",
+                                borderBottomLeftRadius: "6px",
+                            }}
+                        >
                             <div className="flex gap-1.5">
-                                <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                                <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                                <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                                <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: "var(--color-primary-400)", animationDelay: "0ms" }} />
+                                <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: "var(--color-primary-400)", animationDelay: "150ms" }} />
+                                <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: "var(--color-primary-400)", animationDelay: "300ms" }} />
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* 文脈別フォローアップボタン（AI応答後に表示） */}
+                {/* フォローアップボタン */}
                 {showFollowUps && (
                     <div className="space-y-2 pt-1">
                         <div className="flex flex-col gap-1.5">
@@ -233,7 +275,12 @@ export default function GlobalAIAssistant({ isOpen, onClose }: GlobalAIAssistant
                                 <button
                                     key={q.text}
                                     onClick={() => handleSend(q.text)}
-                                    className="text-left text-xs px-3 py-2.5 rounded-xl bg-sidebar/80 text-surface-300 hover:bg-primary-500/15 hover:text-primary-300 border border-sidebar-hover/50 hover:border-primary-500/40 transition-all"
+                                    className="text-left text-xs px-3 py-2.5 rounded-xl transition-all"
+                                    style={{
+                                        backgroundColor: "var(--color-surface-100)",
+                                        color: "var(--color-foreground)",
+                                        border: "1px solid var(--color-surface-200)",
+                                    }}
                                 >
                                     <span className="mr-1.5">{q.emoji}</span>
                                     {q.text}
@@ -248,18 +295,32 @@ export default function GlobalAIAssistant({ isOpen, onClose }: GlobalAIAssistant
 
             {/* 初期表示: クイックリプライ + ガイド */}
             {showInitialSuggestions && (
-                <div className="px-4 pb-3 space-y-2 border-t border-sidebar-hover/30 pt-3">
+                <div
+                    className="px-4 pb-3 space-y-2 pt-3"
+                    style={{
+                        borderTop: "1px solid var(--color-surface-200)",
+                        backgroundColor: "var(--color-surface-50)",
+                    }}
+                >
                     {/* ガイドトグル */}
                     <button
                         onClick={() => setShowGuide(!showGuide)}
-                        className="flex items-center gap-1.5 text-[11px] text-muted hover:text-primary-400 transition-colors"
+                        className="flex items-center gap-1.5 text-[11px] transition-colors"
+                        style={{ color: "var(--color-surface-300)" }}
                     >
                         <HelpCircle size={13} />
                         何を聞けばいいかわからない？
                     </button>
 
                     {showGuide && (
-                        <div className="bg-sidebar/60 rounded-xl p-3 text-xs text-muted leading-relaxed border border-sidebar-hover/30">
+                        <div
+                            className="rounded-xl p-3 text-xs leading-relaxed"
+                            style={{
+                                backgroundColor: "var(--color-surface-100)",
+                                color: "var(--color-foreground)",
+                                border: "1px solid var(--color-surface-200)",
+                            }}
+                        >
                             以下のボタンをタップするだけでOKです。
                             自由に入力しても大丈夫ですよ。
                         </div>
@@ -271,7 +332,12 @@ export default function GlobalAIAssistant({ isOpen, onClose }: GlobalAIAssistant
                             <button
                                 key={q.text}
                                 onClick={() => handleSend(q.text)}
-                                className="text-left text-xs px-3 py-2.5 rounded-xl bg-sidebar/80 text-surface-300 hover:bg-primary-500/15 hover:text-primary-300 border border-sidebar-hover/50 hover:border-primary-500/40 transition-all"
+                                className="text-left text-xs px-3 py-2.5 rounded-xl transition-all"
+                                style={{
+                                    backgroundColor: "var(--color-surface-100)",
+                                    color: "var(--color-foreground)",
+                                    border: "1px solid var(--color-surface-200)",
+                                }}
                             >
                                 <span className="mr-1.5">{q.emoji}</span>
                                 {q.text}
@@ -281,8 +347,14 @@ export default function GlobalAIAssistant({ isOpen, onClose }: GlobalAIAssistant
                 </div>
             )}
 
-            {/* Input */}
-            <div className="p-3 border-t border-sidebar-hover/50 bg-sidebar/30">
+            {/* Input — solid colors only */}
+            <div
+                className="p-3"
+                style={{
+                    borderTop: "1px solid var(--color-surface-200)",
+                    backgroundColor: "var(--color-surface-100)",
+                }}
+            >
                 <div className="flex items-center gap-2">
                     <input
                         ref={inputRef}
@@ -291,18 +363,31 @@ export default function GlobalAIAssistant({ isOpen, onClose }: GlobalAIAssistant
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder="メッセージを送信..."
-                        className="flex-1 bg-sidebar border border-sidebar-hover rounded-xl px-4 py-2.5 text-sm text-white placeholder-surface-500 focus:outline-none focus:border-primary-500 transition-colors"
+                        className="flex-1 rounded-xl px-4 py-2.5 text-sm focus:outline-none transition-colors"
+                        style={{
+                            backgroundColor: "var(--color-surface-50)",
+                            color: "var(--color-foreground)",
+                            border: "1px solid var(--color-surface-200)",
+                        }}
                         disabled={isLoading}
                     />
                     <button
                         onClick={() => handleSend()}
                         disabled={!input.trim() || isLoading}
-                        className={clsx(
-                            "p-2.5 rounded-xl transition-all",
+                        className="p-2.5 rounded-xl transition-all"
+                        style={
                             input.trim() && !isLoading
-                                ? "bg-primary-500 text-white hover:bg-primary-400 shadow-lg shadow-primary-500/20"
-                                : "bg-sidebar-hover text-surface-500 cursor-not-allowed"
-                        )}
+                                ? {
+                                    backgroundColor: "var(--color-primary-500)",
+                                    color: "#FFFFFF",
+                                    boxShadow: "0 4px 12px rgba(184, 92, 56, 0.3)",
+                                }
+                                : {
+                                    backgroundColor: "var(--color-surface-200)",
+                                    color: "var(--color-surface-300)",
+                                    cursor: "not-allowed",
+                                }
+                        }
                     >
                         {isLoading ? (
                             <Loader2 size={18} className="animate-spin" />
